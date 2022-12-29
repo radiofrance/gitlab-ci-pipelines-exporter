@@ -9,6 +9,6 @@ import (
 
 func TestWithZapLogger(t *testing.T) {
 	logger := zap.NewNop()
-	webhook := NewWebhook("", WithZapLogger(logger))
+	webhook := NewWebhook("/metrics", "", WithZapLogger(logger))
 	assert.Equal(t, logger, webhook.log)
 }

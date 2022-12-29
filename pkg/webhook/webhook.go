@@ -40,9 +40,9 @@ type (
 )
 
 // NewWebhook creates a new instance of the Gitlab event webhook handler.
-func NewWebhook(secretToken string, opts ...Option) *Webhook {
+func NewWebhook(pattern, secretToken string, opts ...Option) *Webhook {
 	webhook := &Webhook{
-		Handler: negroni.New(),
+		Handler: http.NewServeMux(),
 		Collectors: Collectors{
 			IDCollector:                       collectors.NewCollectorID(),
 			DurationSecondsCollector:          collectors.NewCollectorDurationSeconds(),
@@ -57,6 +57,7 @@ func NewWebhook(secretToken string, opts ...Option) *Webhook {
 			JobStatusCollector:                collectors.NewCollectorJobStatus(),
 			JobTimestampCollector:             collectors.NewCollectorJobTimestamp(),
 		},
+
 		log: zap.Must(zap.NewProduction()),
 	}
 
@@ -79,19 +80,18 @@ func NewWebhook(secretToken string, opts ...Option) *Webhook {
 		opt(webhook)
 	}
 
-	webhook.Handler.(*negroni.Negroni).Use(NewRecoverMiddleware(webhook.log))
-	webhook.Handler.(*negroni.Negroni).Use(NewZapMiddleware(webhook.log))
-	webhook.Handler.(*negroni.Negroni).Use(NewGitlabSecretTokenMiddleware(secretToken))
-
-	mux := http.NewServeMux()
-	mux.Handle("/pipeline", processHandler(webhook.handlePipelineEvent))
-	mux.Handle("/job", processHandler(webhook.handleJobEvent))
+	mux := webhook.Handler.(*http.ServeMux)
 	mux.Handle("/healthz", http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		writer.WriteHeader(200)
 	}))
-	mux.Handle("/metrics", promhttp.Handler())
 
-	webhook.Handler.(*negroni.Negroni).UseHandler(mux)
+	root := negroni.New(NewRecoverMiddleware(webhook.log), NewZapMiddleware(webhook.log))
+	mux.Handle(pattern, root.With(negroni.Wrap(promhttp.Handler())))
+
+	gitlab := root.With(NewGitlabSecretTokenMiddleware(secretToken))
+	mux.Handle("/pipeline", gitlab.With(negroni.Wrap(processHandler(webhook.handlePipelineEvent))))
+	mux.Handle("/job", gitlab.With(negroni.Wrap(processHandler(webhook.handleJobEvent))))
+
 	return webhook
 }
 
