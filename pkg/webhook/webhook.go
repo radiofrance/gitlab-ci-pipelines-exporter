@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"gitlab-ci-runner-exporter/pkg/collectors"
+	"gitlab-ci-pipelines-exporter/pkg/collectors"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

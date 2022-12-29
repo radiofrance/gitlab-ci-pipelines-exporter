@@ -1,4 +1,4 @@
-module gitlab-ci-runner-exporter
+module gitlab-ci-pipelines-exporter
 
 go 1.19
 
