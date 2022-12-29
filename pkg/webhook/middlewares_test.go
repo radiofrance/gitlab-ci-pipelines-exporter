@@ -15,7 +15,6 @@ import (
 )
 
 func TestNewZapMiddleware(t *testing.T) {
-	start := time.Now()
 	buffer := bytes.NewBuffer(nil)
 	logger := zap.New(zapcore.NewCore(
 		zapcore.NewJSONEncoder(zapcore.EncoderConfig{
@@ -71,10 +70,6 @@ func TestNewZapMiddleware(t *testing.T) {
 	assert.Equal(t, "127.0.0.1", log.RemoteAddr)
 	assert.Equal(t, "go-test", log.RemoteUser)
 	assert.Equal(t, http.StatusOK, log.Status)
-
-	ts, err := time.Parse(time.RFC3339Nano, log.TimeLocal)
-	assert.NoError(t, err)
-	assert.WithinRange(t, ts, start, time.Now())
 }
 
 func TestNewGitlabSecretTokenMiddleware(t *testing.T) {
