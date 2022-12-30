@@ -1,0 +1,9 @@
+# Ignore everything ...
+*
+**/*
+
+# ... but
+!cmd/
+!pkg/
+!go.mod
+!go.sum
