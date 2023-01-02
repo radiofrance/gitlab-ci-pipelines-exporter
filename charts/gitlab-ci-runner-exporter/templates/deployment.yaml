@@ -18,12 +18,15 @@ spec:
   template:
     metadata:
       labels: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 8 }}
-      {{- if .Values.podAnnotations }}
-      annotations: {{- .Values.podAnnotations | toYaml | nindent 8 }}
-      {{- end }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- .Values.podAnnotations | toYaml | nindent 8 }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       imagePullSecrets: {{- concat .Values.global.imagePullSecrets .Values.image.pullSecrets | toYaml | nindent 8 }}
       serviceAccountName: {{ include "gitlab-ci-pipelines-exporter.serviceAccountName" . }}
+      automountServiceAccountToken: false
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
       {{- end }}
@@ -31,9 +34,7 @@ spec:
       {{- if .Values.affinity }}
       affinity: {{- .Values.affinity | toYaml | nindent 8 }}
       {{- end }}
-      {{- if .Values.podSecurityContext.enabled }}
-      securityContext: {{- .Values.podSecurityContext | omit "enabled" | toYaml | nindent 8 }}
-      {{- end }}
+      securityContext: {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{ .Values.nodeSelector | toYaml | nindent 8 }}
       {{- end }}
@@ -47,9 +48,7 @@ spec:
         - name: {{ .Chart.Name }}
           image: {{ include "gitlab-ci-pipelines-exporter.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
-          {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
-          {{ end }}
           env:
             - name: GITLAB_WEBHOOK_SECRET_TOKEN
               valueFrom:
