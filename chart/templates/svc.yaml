@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}
+  labels: {{- include "gitlab-ci-pipelines-exporter.labels" . | nindent 4 }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "gitlab-ci-pipelines-exporter.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if and .Values.service.clusterIP (eq .Values.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end }}
+  {{- if (or (eq .Values.service.type "LoadBalancer") (eq .Values.service.type "NodePort")) }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if eq .Values.service.type "LoadBalancer" }}
+  loadBalancerSourceRanges: {{ .Values.service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- .Values.service.sessionAffinityConfig | toYaml | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ coalesce .Values.service.ports.http .Values.service.port}}
+      targetPort: http
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.nodePorts.http)) }}
+      nodePort: {{ .Values.service.nodePorts.http }}
+      {{- end }}
+  selector: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 4 }}

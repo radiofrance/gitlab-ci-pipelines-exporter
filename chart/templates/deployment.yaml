@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}
+  labels: {{- include "gitlab-ci-pipelines-exporter.labels" . | nindent 4 }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "gitlab-ci-pipelines-exporter.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 6 }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  {{- if .Values.updateStrategy }}
+  strategy: {{- .Values.updateStrategy | toYaml | nindent 4}}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 8 }}
+      {{- if .Values.podAnnotations }}
+      annotations: {{- .Values.podAnnotations | toYaml | nindent 8 }}
+      {{- end }}
+    spec:
+      imagePullSecrets: {{- concat .Values.global.imagePullSecrets .Values.image.pullSecrets | toYaml | nindent 8 }}
+      serviceAccountName: {{ include "gitlab-ci-pipelines-exporter.serviceAccountName" . }}
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName }}
+      {{- end }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- if .Values.affinity }}
+      affinity: {{- .Values.affinity | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- .Values.podSecurityContext | omit "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{ .Values.nodeSelector | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{ .Values.tolerations | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      tolerations: {{ .Values.topologySpreadConstraints | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "gitlab-ci-pipelines-exporter.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
+          {{ end }}
+          env:
+            - name: GITLAB_WEBHOOK_SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: token
+                  name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}-secret-token
+            - name: WEB_LISTEN_ADDRESS
+              value: :{{ .Values.containerPorts.http }}
+            - name: LOG_LEVEL
+              value: {{ .Values.gcpe.logLevel }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPorts.http }}
+              protocol: TCP
+          livenessProbe:
+            httpGet: &httpProbe
+              path: /healthz
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: *httpProbe
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          resources: {{- .Values.resources | toYaml | nindent 12 }}
+      {{- if .Values.extraPodSpec }}
+      {{ .Values.extraPodSpec | toYaml | nindent 6 }}
+      {{- end }}

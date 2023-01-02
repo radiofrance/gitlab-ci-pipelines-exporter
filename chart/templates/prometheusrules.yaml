@@ -1,0 +1,18 @@
+{{- if and .Values.metrics.prometheusRule.enabled  }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ template "gitlab-ci-pipelines-exporter.fullname" . }}
+  namespace: {{ .Values.metrics.prometheusRule.namespace | default .Release.Namespace }}
+  labels: {{- include "gitlab-ci-pipelines-exporter.labels" . | nindent 4 }}
+    {{- if .Values.metrics.prometheusRule.labels -}}
+    {{ .Values.metrics.prometheusRule.labels | toYaml | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "gitlab-ci-pipelines-exporter.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  groups:
+    - name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}
+      rules: {{ tpl (.Values.metrics.prometheusRule.rules | toYaml) $ | nindent 8 }}
+{{- end }}

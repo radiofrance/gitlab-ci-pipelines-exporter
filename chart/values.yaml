@@ -1,0 +1,302 @@
+---
+## global -- global parameters (https://helm.sh/docs/chart_template_guide/subcharts_and_globals/#global-chart-values)
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets
+global:
+  ## global.imageRegistry -- docker image registry used by all chart/subcharts
+  imageRegistry: ""
+  ## global.imagePullSecrets -- docker image pull secrets used by all chart/subcharts
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+
+## nameOverride -- string to partially override common.names.fullname
+nameOverride: ""
+## fullnameOverride -- string to fully override common.names.fullname
+fullnameOverride: ""
+
+## commonLabels -- labels to add to all deployed objects
+commonLabels: {}
+## commonAnnotations -- annotations to add to all deployed objects
+commonAnnotations: {}
+
+## gcpe -- Gitlab CI pipelines exporter configuration
+gcpe:
+  ## gcpe.info -- Gitlab CI pipelines exporter log verbosity (fatal, error, warning, info, debug)
+  logLevel: info
+  ## gcpe.webhookSecret -- Gitlab webhook secret token
+  webhookSecret: ""
+
+## image -- Gitlab CI pipelines exporter image
+image:
+  ## image.registry -- Gitlab CI pipelines exporter image registry
+  registry: ghcr.io
+  ## image.repository -- Gitlab CI pipelines exporter image repository
+  repository: radiofrance/gitlab-ci-pipelines-exporter
+  ## image.tag -- Gitlab CI pipelines exporter image tag (`appVersion` by default)
+  tag: ""
+  ## image.digest -- Gitlab CI pipelines exporter image digest
+  digest: ""
+  ## image.pullPolicy -- Gitlab CI pipelines exporter image pull policy
+  pullPolicy: IfNotPresent
+  ## image.pullSecrets -- Gitlab CI pipelines exporter image pull secrets
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+
+## replicaCount -- number of replicas of the Gitlab CI pipelines exporter deployment
+replicaCount: 1
+
+## podAffinityPreset -- pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+podAffinity: ""
+## podAntiAffinityPreset -- pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+podAntiAffinity: soft
+## Node affinity preset
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+nodeAffinity:
+  ## nodeAffinityPreset.type -- node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+  type: ""
+  ## nodeAffinityPreset.key -- node label key to match. Ignored if `affinity` is set
+  key: ""
+  ## nodeAffinityPreset.values -- node label values to match. Ignored if `affinity` is set
+  ## e.g:
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  values: []
+## affinity -- affinity for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## NOTE: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set
+affinity: {}
+## nodeSelector -- node labels for pod assignment
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+nodeSelector: {}
+## tolerations -- tolerations for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+## topologySpreadConstraints -- topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#spread-constraints-for-pods
+topologySpreadConstraints: []
+## extraPodSpec -- optionally specify extra PodSpec
+extraPodSpec: {}
+
+## podLabels -- extra labels for Gitlab CI pipelines exporter pods
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+## podAnnotations -- pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+## priorityClassName -- Gitlab CI pipelines exporter pods' priorityClassName
+priorityClassName: ""
+## schedulerName -- name of the k8s scheduler (other than default)
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+schedulerName: ""
+
+## podSecurityContext -- configure Pods Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+podSecurityContext: {}
+## containerSecurityContext -- configure Container Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+containerSecurityContext:
+   capabilities:
+     drop:
+     - ALL
+   readOnlyRootFilesystem: true
+   runAsNonRoot: true
+   runAsUser: 65534
+
+## containerPorts -- Gitlab CI pipelines exporter container port
+containerPorts:
+  ## containerPorts.http -- Main exporter port, that receive webhook requests and export metrics
+  http: 9252
+
+## resources -- Gitlab CI pipelines exporter pods' resource requests and limits
+## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+## We usually recommend not to specify default resources and to leave this as a conscious
+## choice for the user. This also increases chances charts run on environments with little
+## resources, such as Minikube. If you do want to specify resources, uncomment the following
+## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+resources:
+  ## resources.limits -- The resources limits for the container
+  ## e.g:
+  ## limits:
+  ##   cpu: 100m
+  ##   memory: 128Mi
+  limits: {}
+  ## resources.requests -- The requested resources for the container
+  ## e.g:
+  ## requests:
+  ##   cpu: 100m
+  ##   memory: 128Mi
+  requests: {}
+
+## updateStrategy.type -- Gitlab CI pipelines exporter deployment strategy type.
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+## e.g:
+## updateStrategy:
+##  type: RollingUpdate
+##  rollingUpdate:
+##    maxSurge: 25%
+##    maxUnavailable: 25%
+updateStrategy:
+  type: RollingUpdate
+
+## pdb -- Gitlab CI pipelines exporter Pod Disruption Budget configuration
+## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+pdb:
+  ## pdb.create -- enable a Pod Disruption Budget creation
+  create: false
+  ## pdb.minAvailable -- minimum number/percentage of pods that should remain scheduled
+  minAvailable: 1
+  ## pdb.maxUnavailable -- maximum number/percentage of pods that may be made unavailable
+  maxUnavailable: ""
+
+## autoscaling - Gitlab CI pipelines exporter autoscaling parameters
+## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+autoscaling:
+  ## autoscaling.enabled -- enable Horizontal Pod autoscaling for Gitlab CI pipelines exporter
+  enabled: false
+  ## autoscaling.minReplicas -- minimum number of Gitlab CI pipelines exporter replicas
+  minReplicas: 1
+  ## autoscaling.maxReplicas -- maximum number of Gitlab CI pipelines exporter replicas
+  maxReplicas: 11
+  ## autoscaling.targetCPU -- target CPU utilization percentage
+  targetCPU: 50
+  ## autoscaling.targetMemory -- target Memory utilization percentage
+  targetMemory: 50
+
+## service - Gitlab CI pipelines exporter service parameters
+service:
+  ## service.type -- Gitlab CI pipelines exporter Service type
+  type: ClusterIP
+  ports:
+    ## service.ports.http -- Gitlab CI pipelines exporter service HTTP port
+    http: 80
+  nodePorts:
+    ## service.nodePorts.http -- node port for HTTP
+    http: ""
+  ## service.clusterIP -- Gitlab CI pipelines exporter service Cluster IP
+  ## e.g.:
+  ## clusterIP: None
+  clusterIP: ""
+  ## service.loadBalancerSourceRanges -- Gitlab CI pipelines exporter service Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  loadBalancerSourceRanges: []
+  ## service.annotations -- additional custom annotations for Gitlab CI pipelines exporter service
+  ## This can be used to set the LoadBalancer service type to internal only.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+  annotations: {}
+  ## service.externalTrafficPolicy -- Gitlab CI pipelines exporter service external traffic policy
+  ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  externalTrafficPolicy: Cluster
+  ## service.sessionAffinity -- session Affinity for Kubernetes service, can be "None" or "ClientIP"
+  ## If "ClientIP", consecutive client requests will be directed to the same pod
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+  sessionAffinity: None
+  ## service.sessionAffinityConfig -- additional settings for the sessionAffinity
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  sessionAffinityConfig: {}
+
+## ingress -- configure the ingress resource that allows you to access the Gitlab CI pipelines exporter installation
+## ref: https://kubernetes.io/docs/user-guide/ingress/
+ingress:
+  ## ingress.enabled -- enable ingress record generation for Gitlab CI pipelines exporter
+  enabled: false
+
+  ## ingress.pathType -- ingress path type
+  pathType: ImplementationSpecific
+  ## ingress.ingressClassName -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## IngressClassName is used to reference the IngressClass that should be used to implement this Ingress.
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ingressClassName: ""
+  ## ingress.hostname -- default host for the ingress record
+  hostname: example.local
+  ## ingress.path -- default path for the ingress record
+  path: /
+  ## ingress.annotations -- additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  annotations: {}
+  ## ingress.tls -- [array] enable TLS configuration for the hosts defined
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  tls:
+    - hosts:
+        - example.local
+      secretName: example.local-tls
+
+## metrics -- metrics parameters
+metrics:
+  ## serviceMonitor -- Prometheus Operator ServiceMonitor configuration
+  serviceMonitor:
+    ## metrics.serviceMonitor.enabled -- if `true`, creates a Prometheus Operator ServiceMonitor (also requires `metrics.enabled` to be `true`)
+    enabled: false
+    ## metrics.serviceMonitor.namespace -- namespace for the ServiceMonitor Resource (defaults to the Release Namespace)
+    namespace: ""
+    ## metrics.serviceMonitor.interval -- interval at which metrics should be scraped.
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    interval: 30s
+    ## metrics.serviceMonitor.scrapeTimeout -- timeout after which the scrape is ended
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    scrapeTimeout: 15s
+    ## metrics.serviceMonitor.labels -- labels that can be used so ServiceMonitor will be discovered by Prometheus
+    labels: {}
+    ## metrics.serviceMonitor.relabelings -- RelabelConfigs to apply to samples before scraping
+    relabelings: []
+    ## metrics.serviceMonitor.metricRelabelings -- MetricRelabelConfigs to apply to samples before ingestion
+    metricRelabelings: []
+
+   ## prometheusRule -- Prometheus Operator PrometheusRule configuration
+  prometheusRule:
+    ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
+    enabled: false
+    ## metrics.prometheusRule.namespace -- namespace for the PrometheusRule Resource (defaults to the Release Namespace)
+    namespace: ""
+    ## metrics.prometheusRule.labels -- labels that can be used so PrometheusRule will be discovered by Prometheus
+    labels: {}
+    ## metrics.prometheusRule.rules -- Prometheus Rule definitions
+    ##   - alert: LowInstance
+    ##     expr: up{service="{{ template "common.names.fullname" . }}"} < 1
+    ##     for: 1m
+    ##     labels:
+    ##       severity: critical
+    ##     annotations:
+    ##       description: Service {{ template "common.names.fullname" . }} Apache is down since 1m.
+    ##       summary: Apache instance is down.
+    ##
+    rules: []
+
+## serviceAccount -- Gitlab CI pipelines exporter service account
+serviceAccount:
+  # serviceAccount.create -- specifies whether a service account should be created
+  create: true
+  # serviceAccount.annotations -- annotations to add to the service account
+  annotations: {}
+  # serviceAccount.name -- the name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""

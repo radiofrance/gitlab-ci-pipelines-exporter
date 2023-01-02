@@ -1,0 +1,19 @@
+{{- if .Values.pdb.create }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}
+  labels: {{- include "gitlab-ci-pipelines-exporter.labels" . | nindent 4 }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "gitlab-ci-pipelines-exporter.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.pdb.minAvailable }}
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  {{- end }}
+  {{- if .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 6 }}
+{{- end }}
