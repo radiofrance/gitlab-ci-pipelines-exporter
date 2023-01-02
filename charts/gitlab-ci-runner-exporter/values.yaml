@@ -111,12 +111,12 @@ podSecurityContext: {}
 ## containerSecurityContext -- configure Container Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 containerSecurityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 65534
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
 
 ## containerPorts -- Gitlab CI pipelines exporter container port
 containerPorts:
@@ -271,7 +271,7 @@ metrics:
     ## metrics.serviceMonitor.metricRelabelings -- MetricRelabelConfigs to apply to samples before ingestion
     metricRelabelings: []
 
-   ## prometheusRule -- Prometheus Operator PrometheusRule configuration
+    ## prometheusRule -- Prometheus Operator PrometheusRule configuration
   prometheusRule:
     ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
     enabled: false
