@@ -1,0 +1,25 @@
+---
+name: Test (Helm)
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    types: [opened, synchronize]
+#    paths: ["chart/**"]
+
+jobs:
+  # Test all charts using the official chart-testing CLI.
+  chart_testing:
+    name: Chart testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: azure/setup-helm@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          check-latest: true
+      - uses: helm/chart-testing-action@v2.3.1
+      - uses: helm/kind-action@v1.4.0
+      - name: Run chart-testing (install)
+        run: ct install --target-branch ${{ github.event.pull_request.base.ref }}
