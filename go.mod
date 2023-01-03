@@ -7,7 +7,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli/v2 v2.23.7
 	github.com/urfave/negroni v1.0.0
-	github.com/urfave/negroni/v2 v2.0.2
+	github.com/urfave/negroni/v3 v3.0.0
 	github.com/urfave/negroni/v3 v3.0.0
 	go.uber.org/zap v1.24.0
 )
