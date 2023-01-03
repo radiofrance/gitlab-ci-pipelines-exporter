@@ -14,6 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
 
-      - uses: hadolint/hadolint-action@4b5806eb9c6bee4954fc0e0cc3ad6175fc9782c1 # tag=v2.1.0
+      - uses: hadolint/hadolint-action@f988afea3da57ee48710a9795b6bb677cc901183 # v2.1.0
         with:
           dockerfile: Dockerfile
