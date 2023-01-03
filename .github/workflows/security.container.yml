@@ -3,7 +3,9 @@ name: Security (Container)
 on: # yamllint disable-line rule:truthy
   pull_request:
     types: [opened, synchronize]
-#    paths: ["chart/**"]
+    paths:
+      - .github/workflows/security.container.yml
+      - Dockerfile
 
 jobs:
   # Analyze statically Helm charts to identify any policy violations.
@@ -11,15 +13,17 @@ jobs:
     name: Checkov
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
+      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # tag=v4.4.0
         with:
-          python-version: 3.8
-      - uses: bridgecrewio/checkov-action@master
+          python-version: '3.8'
+          check-latest: true
+
+      - uses: bridgecrewio/checkov-action@65c5e80be436aa25d88880cf887ab8367797d6f2
         with:
           framework: dockerfile
           skip_check: CKV_DOCKER_2
-      - uses: github/codeql-action/upload-sarif@v2
+      - uses: github/codeql-action/upload-sarif@896079047b4bb059ba6f150a5d87d47dde99e6e5 # tag=codeql-bundle-20221211
         if: always()
         with:
           category: checkov-helm

@@ -1,22 +1,29 @@
 ---
 name: Test (Golang)
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   pull_request:
     types: [opened, synchronize]
+    paths:
+      - .github/workflows/test.golang.yml
+      - go.*
+      - cmd/**
+      - pkg/**
 
 jobs:
   go-test:
     name: Golang test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # tag=v3.5.0
         with:
-          go-version: 1.19
-      - uses: actions/checkout@v3
+          go-version: '1.19'
+          check-latest: true
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
+
       - name: Run golang tests
         run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb # tag=v3.1.1
         with:
           name: golang-coverage-report
           path: coverage.out
@@ -27,7 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [go-test]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7 # tag=v3.0.1
         with:
           name: golang-coverage-report
-      - uses: codecov/codecov-action@v3
+
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
