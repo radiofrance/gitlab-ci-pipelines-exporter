@@ -1,0 +1,31 @@
+---
+name: Security (Helm)
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/security.helm.yml
+      - charts/**
+
+jobs:
+  # Analyze statically Helm charts to identify any policy violations.
+  checkov:
+    name: Checkov
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
+      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # tag=v4.4.0
+        with:
+          python-version: '3.8'
+          check-latest: true
+
+      - uses: bridgecrewio/checkov-action@65c5e80be436aa25d88880cf887ab8367797d6f2
+        with:
+          directory: charts/gitlab-ci-runner-exporter
+          framework: helm
+          skip_check: CKV_K8S_11,CKV_K8S_15,CKV_K8S_21,CKV_K8S_35,CKV_K8S_43
+      - uses: github/codeql-action/upload-sarif@896079047b4bb059ba6f150a5d87d47dde99e6e5 # tag=codeql-bundle-20221211
+        if: always()
+        with:
+          category: checkov-helm
+          sarif_file: results.sarif

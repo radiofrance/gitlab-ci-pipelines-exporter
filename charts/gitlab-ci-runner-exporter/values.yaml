@@ -37,7 +37,7 @@ image:
   ## image.registry -- Gitlab CI pipelines exporter image registry
   registry: ghcr.io
   ## image.repository -- Gitlab CI pipelines exporter image repository
-  repository: radiofrance/gitlab-ci-pipelines-exporter
+  repository: xunleii/gitlab-ci-pipelines-exporter
   ## image.tag -- Gitlab CI pipelines exporter image tag (`appVersion` by default)
   tag: ""
   ## image.digest -- Gitlab CI pipelines exporter image digest
@@ -107,16 +107,22 @@ schedulerName: ""
 
 ## podSecurityContext -- configure Pods Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-podSecurityContext: {}
+podSecurityContext:
+  fsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
 ## containerSecurityContext -- configure Container Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 containerSecurityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 65534
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
 
 ## containerPorts -- Gitlab CI pipelines exporter container port
 containerPorts:
@@ -131,17 +137,12 @@ containerPorts:
 ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
 resources:
   ## resources.limits -- The resources limits for the container
-  ## e.g:
-  ## limits:
-  ##   cpu: 100m
-  ##   memory: 128Mi
-  limits: {}
+  limits:
+    memory: 128Mi
   ## resources.requests -- The requested resources for the container
-  ## e.g:
-  ## requests:
-  ##   cpu: 100m
-  ##   memory: 128Mi
-  requests: {}
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 ## updateStrategy.type -- Gitlab CI pipelines exporter deployment strategy type.
 ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
@@ -271,9 +272,10 @@ metrics:
     ## metrics.serviceMonitor.metricRelabelings -- MetricRelabelConfigs to apply to samples before ingestion
     metricRelabelings: []
 
-   ## prometheusRule -- Prometheus Operator PrometheusRule configuration
+    ## prometheusRule -- Prometheus Operator PrometheusRule configuration
   prometheusRule:
-    ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
+    ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule
+    ## (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
     enabled: false
     ## metrics.prometheusRule.namespace -- namespace for the PrometheusRule Resource (defaults to the Release Namespace)
     namespace: ""

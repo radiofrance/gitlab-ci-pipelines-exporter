@@ -131,6 +131,5 @@ func processHandler[T any](handler func(event T) error) http.HandlerFunc {
 		}
 
 		writer.WriteHeader(http.StatusOK)
-		return
 	}
 }
