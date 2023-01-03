@@ -1,6 +1,6 @@
 ---
 name: Build (Helm)
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   pull_request:
     types: [opened, synchronize]
 
@@ -21,7 +21,7 @@ jobs:
       - name: Configure git user
         run: |
           git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"    
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
       - uses: helm/chart-releaser-action@v1.4.1
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
