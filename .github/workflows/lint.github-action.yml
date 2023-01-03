@@ -1,9 +1,9 @@
 ---
 name: Lint (Github Actions workflows)
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   pull_request:
     types: [opened, synchronize]
-    paths: [".github/workflows/**"]
+    paths: [.github/workflows/**]
 
 jobs:
   # CI harden security tries to keep your github actions secure by following these simple rules:
