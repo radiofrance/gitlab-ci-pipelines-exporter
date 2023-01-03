@@ -25,17 +25,9 @@
     "helpers:pinGitHubActionDigests",
     "regexManagers:dockerfileVersions"
   ],
-  "packageRules": [
-    {
-      "extends": ["schedule:weekly"],
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "Github actions"
-    }
-  ],
   "regexManagers": [
     {
-      "fileMatch": ["^Chart.yaml"],
+      "fileMatch": ["(^|/)Chart\\.yaml"],
       "matchStrings": [
         "^# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+appVersion: (?<currentValue>.*)\\s"
       ],
