@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    ":autodetectPinVersions",
+    ":automergeDigest",
+    ":automergeLinters",
+    ":automergeMinor",
+    ":automergePatch",
+    ":automergePr",
+    ":automergeRequireAllStatusChecks",
+    ":automergeTesters",
+    ":combinePatchMinorReleases",
+    ":dependencyDashboard",
+    ":enableVulnerabilityAlerts",
+    ":gitSignOff",
+    ":ignoreModulesAndTests",
+    ":ignoreUnstable",
+    ":maintainLockFilesMonthly",
+    ":prConcurrentLimitNone",
+    ":prHourlyLimitNone",
+    ":prImmediately",
+    ":semanticCommitScope(deps)",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":separateMultipleMajorReleases",
+    "helpers:pinGitHubActionDigests",
+    "regexManagers:dockerfileVersions"
+  ],
+  "packageRules": [
+    {
+      "extends": ["schedule:weekly"],
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Github actions"
+    }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^Chart.yaml"],
+      "matchStrings": [
+        "^# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+appVersion: (?<currentValue>.*)\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ]
+}
