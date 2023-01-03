@@ -28,7 +28,7 @@ func NewZapMiddleware(logger *zap.Logger) negroni.Handler {
 		logger = logger.With(
 			zap.Int("status", writer.(negroni.ResponseWriter).Status()),
 			zap.Int("body_bytes_sent", writer.(negroni.ResponseWriter).Size()),
-			zap.Float32("duration", float32(time.Now().Sub(start))/float32(time.Second)),
+			zap.Float32("duration", float32(time.Since(start))/float32(time.Second)),
 		)
 
 		switch {
