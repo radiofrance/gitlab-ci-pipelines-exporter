@@ -6,7 +6,7 @@ appVersion: v0.1.0
 description: Prometheus exporter for Gitlab CI pipelines insights
 home: https://github.com/radiofrance/gitlab-ci-pipelines-exporter
 sources:
-- https://github.com/radiofrance/gitlab-ci-pipelines-exporter/tree/main/chart
+  - https://github.com/radiofrance/gitlab-ci-pipelines-exporter/tree/main/chart
 maintainers:
   - name: xunleii
     email: xunleii@users.noreply.github.com

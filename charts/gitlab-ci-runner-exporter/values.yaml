@@ -274,7 +274,8 @@ metrics:
 
     ## prometheusRule -- Prometheus Operator PrometheusRule configuration
   prometheusRule:
-    ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
+    ## metrics.prometheusRule.enabled -- if `true`, creates a Prometheus Operator PrometheusRule
+    ## (also requires `metrics.enabled` to be `true` and `metrics.prometheusRule.rules`)
     enabled: false
     ## metrics.prometheusRule.namespace -- namespace for the PrometheusRule Resource (defaults to the Release Namespace)
     namespace: ""
