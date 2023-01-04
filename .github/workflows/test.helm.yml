@@ -6,6 +6,10 @@ on: # yamllint disable-line rule:truthy
     paths:
       - .github/workflows/test.helm.yml
       - charts/**
+  push:
+    branches: [main]
+    paths:
+      - charts/**
 
 jobs:
   # Test all charts using the official chart-testing CLI.

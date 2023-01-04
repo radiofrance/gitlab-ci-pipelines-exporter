@@ -3,7 +3,7 @@ package webhook
 import (
 	"time"
 
-	"gitlab-ci-pipelines-exporter/pkg/gitlab_events"
+	"github.com/xunleii/gitlab-ci-pipelines-exporter/pkg/gitlab_events"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

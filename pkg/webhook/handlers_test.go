@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"gitlab-ci-pipelines-exporter/pkg/collectors"
+	"github.com/xunleii/gitlab-ci-pipelines-exporter/pkg/collectors"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
