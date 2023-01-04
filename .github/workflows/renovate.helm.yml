@@ -7,6 +7,10 @@ on: # yamllint disable-line rule:truthy
       - .github/workflows/renovate.helm.yml
       - charts/**
 
+concurrency:
+  group: ${{ github.event.number }}
+  cancel-in-progress: true
+
 jobs:
   # Bump automatically the Helm chart when Renovate make an update
   auto_bump:
