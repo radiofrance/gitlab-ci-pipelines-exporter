@@ -15,6 +15,7 @@
     ":gitSignOff",
     ":ignoreModulesAndTests",
     ":ignoreUnstable",
+    ":label(dependecies)",
     ":maintainLockFilesMonthly",
     ":prConcurrentLimitNone",
     ":prHourlyLimitNone",
@@ -30,6 +31,14 @@
       "description": "Update digest once a month",
       "matchUpdateTypes": ["digest"],
       "extends": ["schedule:monthly"]
+    },
+    {
+      "description": "Add 'renovate:need-helm-bump' if Renovate didn't bump the Helm chart version",
+      "matchManagers": ["regex"],
+      "matchDatasources": ["docker"],
+      "excludeDepNames": ["ghcr.io/xunleii/gitlab-ci-pipelines-exporter"],
+      "matchFiles": ["Chart.yaml"],
+      "extends": [":labels(dependencies, renovate:need-helm-bump)"]
     }
   ],
   "regexManagers": [
