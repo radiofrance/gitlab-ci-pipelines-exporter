@@ -34,11 +34,20 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["(^|/)Chart\\.yaml"],
+      "fileMatch": ["(^|/)Chart\\.yaml$"],
       "matchStrings": [
-        "^# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+appVersion: (?<currentValue>.*)\\s"
+        "^# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s+appVersion: (?<currentValue>.*)$"
       ],
-      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+      "versioningTemplate": "semver"
+    },
+    {
+      "fileMatch": ["(^|/)Chart\\.yaml$"],
+      "matchStrings": [
+        "^appVersion: (?<currentValue>.*)$"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "alpine",
+      "versioningTemplate": "semver"
     }
   ]
 }
