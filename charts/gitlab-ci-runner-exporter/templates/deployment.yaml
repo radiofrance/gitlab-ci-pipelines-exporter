@@ -53,8 +53,12 @@ spec:
             - name: GITLAB_WEBHOOK_SECRET_TOKEN
               valueFrom:
                 secretKeyRef:
+                  {{- if not .Values.gcpe.webhookSecretRef}}
                   key: token
                   name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}-secret-token
+                  {{- else }}
+                  {{- .Values.gcpe.webhookSecretRef | toYaml | nindent 18 }}
+                  {{- end }}
             - name: WEB_LISTEN_ADDRESS
               value: :{{ .Values.containerPorts.http }}
             - name: LOG_LEVEL
