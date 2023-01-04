@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/xunleii/gitlab-ci-pipelines-exporter/pkg/webhook"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/webhook"
 
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
