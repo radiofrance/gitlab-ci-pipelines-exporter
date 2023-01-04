@@ -43,7 +43,7 @@ image:
   ## image.registry -- Gitlab CI pipelines exporter image registry
   registry: ghcr.io
   ## image.repository -- Gitlab CI pipelines exporter image repository
-  repository: xunleii/gitlab-ci-pipelines-exporter
+  repository: radiofrance/gitlab-ci-pipelines-exporter
   ## image.tag -- Gitlab CI pipelines exporter image tag (`appVersion` by default)
   tag: ""
   ## image.digest -- Gitlab CI pipelines exporter image digest

@@ -1,4 +1,4 @@
-module github.com/xunleii/gitlab-ci-pipelines-exporter
+module github.com/radiofrance/gitlab-ci-pipelines-exporter
 
 go 1.19
 
