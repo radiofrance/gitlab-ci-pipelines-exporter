@@ -25,6 +25,13 @@
     "helpers:pinGitHubActionDigests",
     "regexManagers:dockerfileVersions"
   ],
+  "packageRules": [
+    {
+      "description": "Update digest once a month",
+      "matchUpdateTypes": ["digest"],
+      "extends": ["schedule:monthly"]
+    }
+  ],
   "regexManagers": [
     {
       "fileMatch": ["(^|/)Chart\\.yaml"],
