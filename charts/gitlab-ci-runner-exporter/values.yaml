@@ -31,6 +31,12 @@ gcpe:
   logLevel: info
   ## gcpe.webhookSecret -- Gitlab webhook secret token
   webhookSecret: ""
+  ## gcpe.webhookSecretRef -- Reference of the secret containing the Gitlab webhook secret token
+  ## e.g:
+  #  webhookSecretRef:
+  #    key: token
+  #    name: gitlab-secret-token
+  webhookSecretRef: {}
 
 ## image -- Gitlab CI pipelines exporter image
 image:
