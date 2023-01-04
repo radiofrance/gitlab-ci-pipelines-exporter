@@ -34,9 +34,9 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["(^|/)Chart\\.yaml"],
+      "fileMatch": ["(^|/)Chart\\.yaml$"],
       "matchStrings": [
-        "^# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+appVersion: (?<currentValue>.*)\\s"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s+appVersion: (?<currentValue>[^\\s]+?)\\s"
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
