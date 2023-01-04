@@ -2,6 +2,22 @@ apiVersion: v1
 entries:
   gitlab-ci-pipelines-exporter:
   - apiVersion: v2
+    appVersion: v0.2.0
+    created: "2023-01-04T13:48:19.843043572Z"
+    description: Prometheus exporter for Gitlab CI pipelines insights
+    digest: 61b1af59bb1ecc1cc27d19ef7005e3f0e2eb0b553983b9fb4afca868dbd03c7a
+    home: https://github.com/radiofrance/gitlab-ci-pipelines-exporter
+    maintainers:
+    - email: xunleii@users.noreply.github.com
+      name: xunleii
+    name: gitlab-ci-pipelines-exporter
+    sources:
+    - https://github.com/radiofrance/gitlab-ci-pipelines-exporter/tree/main/chart
+    type: application
+    urls:
+    - https://github.com/xunleii/gitlab-ci-pipelines-exporter/releases/download/gitlab-ci-pipelines-exporter-0.1.2/gitlab-ci-pipelines-exporter-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: v0.1.0
     created: "2023-01-03T16:11:15.366726523Z"
     description: Prometheus exporter for Gitlab CI pipelines insights
@@ -17,4 +33,4 @@ entries:
     urls:
     - https://github.com/xunleii/gitlab-ci-pipelines-exporter/releases/download/gitlab-ci-pipelines-exporter-0.1.1/gitlab-ci-pipelines-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2023-01-03T16:11:15.366737323Z"
+generated: "2023-01-04T13:48:19.843054272Z"
