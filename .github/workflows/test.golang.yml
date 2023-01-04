@@ -10,10 +10,6 @@ on: # yamllint disable-line rule:truthy
       - pkg/**
   push:
     branches: [main]
-    paths:
-      - go.*
-      - cmd/**
-      - pkg/**
 
 jobs:
   go-test:

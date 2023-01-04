@@ -8,8 +8,6 @@ on: # yamllint disable-line rule:truthy
       - charts/**
   push:
     branches: [main]
-    paths:
-      - charts/**
 
 jobs:
   # Test all charts using the official chart-testing CLI.
