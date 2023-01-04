@@ -9,7 +9,8 @@
   </a>
 </h1>
 
-<h4 align="center">gitlab-ci-pipelines-exporter - Monitor your <a href="https://docs.gitlab.com/ee/ci/pipelines/">GitlabCI pipelines</a></h4>
+<h4 align="center">gitlab-ci-pipelines-exporter - Monitor your <a href="https://docs.gitlab.com/ee/ci/pipelines/">
+GitlabCI pipelines</a></h4>
 
 <div align="center">
   <a href="https://github.com/xunleii/gitlab-ci-pipelines-exporter/issues/new">Report a Bug</a> ·
@@ -19,14 +20,12 @@
   <br/>
 
 [![GoReportCard](https://goreportcard.com/badge/github.com/xunleii/gitlab-ci-pipelines-exporter)](https://goreportcard.com/report/github.com/xunleii/gitlab-ci-pipelines-exporter)
-![Codecov branch](https://img.shields.io/codecov/c/github/xunleii/gitlab-ci-pipelines-exporter/main?label=code%20coverage)
+[![Codecov branch](https://img.shields.io/codecov/c/github/xunleii/gitlab-ci-pipelines-exporter/main?label=code%20coverage)](https://app.codecov.io/gh/xunleii/gitlab-ci-pipelines-exporter/tree/main)
 [![GoDoc reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/xunleii/gitlab-ci-pipelines-exporter)
 <br/>
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/xunleii/gitlab-ci-pipelines-exporter?logo=go&logoColor=white&logoWidth=20)
 ![Gitlab compatible version](https://img.shields.io/badge/Gitlab_CI_compatibility-≥_15.4.2-success?logo=gitlab&logoColor=white&logoWidth=20)
-[
-![License](https://img.shields.io/badge/license-CeCILL%202.1-blue?logo=git&logoColor=white&logoWidth=20)
-](LICENSE)
+[![License](https://img.shields.io/badge/license-CeCILL%202.1-blue?logo=git&logoColor=white&logoWidth=20)](LICENSE)
 
 <a href="#about">About</a> ·
 <a href="#install">How to Install?</a> ·

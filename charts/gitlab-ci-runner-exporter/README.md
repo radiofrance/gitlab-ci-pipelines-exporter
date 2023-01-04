@@ -9,20 +9,23 @@
   </a>
 </h1>
 
-<h4 align="center">gitlab-ci-pipelines-exporter - Monitor your <a href="https://docs.gitlab.com/ee/ci/pipelines/">GitlabCI pipelines</a></h4>
+<h4 align="center">gitlab-ci-pipelines-exporter - Monitor your <a href="https://docs.gitlab.com/ee/ci/pipelines/">
+GitlabCI pipelines</a></h4>
 
 <div align="center">
-  <a href="https://github.com/radiofrance/gitlab-ci-pipelines-exporter/issues/new">Report a Bug</a> ·
-  <a href="https://github.com/radiofrance/gitlab-ci-pipelines-exporter/issues/new">Request a Feature</a> ·
-  <a href="https://github.com/radiofrance/gitlab-ci-pipelines-exporter/discussions">Ask a Question</a>
+  <a href="https://github.com/xunleii/gitlab-ci-pipelines-exporter/issues/new">Report a Bug</a> ·
+  <a href="https://github.com/xunleii/gitlab-ci-pipelines-exporter/issues/new">Request a Feature</a> ·
+  <a href="https://github.com/xunleii/gitlab-ci-pipelines-exporter/discussions">Ask a Question</a>
   <br/>
   <br/>
 
-[
-![License](https://img.shields.io/badge/license-CeCILL%202.1-blue?logo=git&logoColor=white&logoWidth=20)
-](LICENSE)
+[![GoReportCard](https://goreportcard.com/badge/github.com/xunleii/gitlab-ci-pipelines-exporter)](https://goreportcard.com/report/github.com/xunleii/gitlab-ci-pipelines-exporter)
+[![Codecov branch](https://img.shields.io/codecov/c/github/xunleii/gitlab-ci-pipelines-exporter/main?label=code%20coverage)](https://app.codecov.io/gh/xunleii/gitlab-ci-pipelines-exporter/tree/main)
+[![GoDoc reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/xunleii/gitlab-ci-pipelines-exporter)
 <br/>
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/xunleii/gitlab-ci-pipelines-exporter?logo=go&logoColor=white&logoWidth=20)
 ![Gitlab compatible version](https://img.shields.io/badge/Gitlab_CI_compatibility-≥_15.4.2-success?logo=gitlab&logoColor=white&logoWidth=20)
+[![License](https://img.shields.io/badge/license-CeCILL%202.1-blue?logo=git&logoColor=white&logoWidth=20)](LICENSE)
 
 <a href="#about">About</a> ·
 <a href="#install">How to Install?</a> ·
@@ -64,22 +67,23 @@ relying on the Gitlab API.
 ### Go
 
 ```shell
-go install github.com/radiofrance/gitlab-ci-pipelines-exporter/cmd/gitlab-ci-pipelines-exporter@latest
+go install github.com/xunleii/gitlab-ci-pipelines-exporter/cmd/gitlab-ci-pipelines-exporter@latest
 gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
 ```
 
 ### Docker
 
 ```shell
-docker pull ghcr.io/radiofrance/gitlab-ci-pipelines-exporter
-docker run --publish 9252 ghcr.io/radiofrance/gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
+docker pull ghcr.io/xunleii/gitlab-ci-pipelines-exporter
+docker run --publish 9252 ghcr.io/xunleii/gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
 ```
 
 ### Helm
 
 ```shell
-helm repo add radiofrance-gcpe ...
-helm upgrade --install gitlab-ci-pipelines-exporter radiofrance-gcpe/gitlab-ci-pipelines-exporter --set gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
+helm repo add xunleii-gcpe https://xunleii.github.io/gitlab-ci-pipelines-exporter
+helm upgrade --install gitlab-ci-pipelines-exporter xunleii-gcpe/gitlab-ci-pipelines-exporter --namespace gitlab-ci-pipelines-exporter --create-namespace --wait --set gitlab.webhook-secret-token="GITLAB_SECRET_TOKEN"
+helm test gitlab-ci-pipelines-exporter --namespace gitlab-ci-pipelines-exporter
 ```
 
 ## Usage
@@ -180,8 +184,8 @@ inside [Grafana dashboards](https://github.com/mvisonneau/gitlab-ci-pipelines-ex
 
 Reach out to the maintainer at one of the following places:
 
-- [GitHub Discussions](https://github.com/radiofrance/gitlab-ci-pipelines-exporter/discussions)
-- Open an issue on [Github](https://github.com/radiofrance/gitlab-ci-pipelines-exporter/issues/new)
+- [GitHub Discussions](https://github.com/xunleii/gitlab-ci-pipelines-exporter/discussions)
+- Open an issue on [Github](https://github.com/xunleii/gitlab-ci-pipelines-exporter/issues/new)
 
 ## Contributing
 
