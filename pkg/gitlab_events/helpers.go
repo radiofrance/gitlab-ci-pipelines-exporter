@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-const RFC3339Spaced = `"2006-01-02 15:04:05 MST"`
+const RFC3339Quoted = `"` + time.RFC3339Nano + `"`
 
 // DateTime is a type helper used to marshal/unmarshal JSON into time.Time with the proper Gitlab time format
 type DateTime time.Time
 
 func (o DateTime) MarshalJSON() ([]byte, error) {
-	return []byte(time.Time(o).Format(RFC3339Spaced)), nil
+	return []byte(time.Time(o).Format(RFC3339Quoted)), nil
 }
 
 func (o *DateTime) UnmarshalJSON(bytes []byte) error {
-	date, err := time.Parse(RFC3339Spaced, string(bytes))
+	date, err := time.Parse(RFC3339Quoted, string(bytes))
 	if err != nil {
 		return err
 	}

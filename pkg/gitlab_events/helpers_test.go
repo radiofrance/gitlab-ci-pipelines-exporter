@@ -11,8 +11,8 @@ import (
 )
 
 func TestDateTime_MarshalJSON(t *testing.T) {
-	expected := `"2006-01-02 15:04:05 MST"`
-	actual, _ := time.Parse(time.RFC850, "Monday, 02-Jan-06 15:04:05 MST")
+	expected := `"2006-01-02T15:04:05Z"`
+	actual, _ := time.Parse(time.RFC850, "Monday, 02-Jan-06 15:04:05 UTC")
 
 	bytes, err := json.Marshal(DateTime(actual))
 	require.NoError(t, err)
@@ -21,16 +21,16 @@ func TestDateTime_MarshalJSON(t *testing.T) {
 }
 
 func TestDateTime_UnmarshalJSON(t *testing.T) {
-	expected, _ := time.Parse(time.RFC850, "Monday, 02-Jan-06 15:04:05 MST")
+	expected, _ := time.Parse(time.RFC850, "Monday, 02-Jan-06 15:04:05 UTC")
 
 	var actual DateTime
-	err := json.Unmarshal([]byte(`"2006-01-02 15:04:05 MST"`), &actual)
+	err := json.Unmarshal([]byte(`"2006-01-02T15:04:05Z"`), &actual)
 	require.NoError(t, err)
 
 	assert.Equal(t, expected, time.Time(actual))
 
 	err = json.Unmarshal([]byte(`null`), &actual)
-	require.EqualError(t, err, `parsing time "null" as "\"2006-01-02 15:04:05 MST\"": cannot parse "null" as "\""`)
+	require.EqualError(t, err, `parsing time "null" as "\"2006-01-02T15:04:05.999999999Z07:00\"": cannot parse "null" as "\""`)
 }
 
 func TestRefKind_String(t *testing.T) {
