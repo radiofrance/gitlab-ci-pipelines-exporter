@@ -31,4 +31,4 @@ jobs:
         run: ct install --target-branch ${{ github.event.pull_request.base.ref }}
       - name: Run chart-testing (install)
         if: github.event_name == 'push'
-        run: ct install
+        run: ct install --all
