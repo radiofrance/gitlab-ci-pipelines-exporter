@@ -3,27 +3,7 @@ package gitlab_events
 import (
 	"encoding/json"
 	"strings"
-	"time"
 )
-
-const RFC3339Quoted = `"` + time.RFC3339Nano + `"`
-
-// DateTime is a type helper used to marshal/unmarshal JSON into time.Time with the proper Gitlab time format
-type DateTime time.Time
-
-func (o DateTime) MarshalJSON() ([]byte, error) {
-	return []byte(time.Time(o).Format(RFC3339Quoted)), nil
-}
-
-func (o *DateTime) UnmarshalJSON(bytes []byte) error {
-	date, err := time.Parse(RFC3339Quoted, string(bytes))
-	if err != nil {
-		return err
-	}
-
-	*o = DateTime(date)
-	return nil
-}
 
 // refKind defined what kind of ref as generated an event (branch, tag, merge_request, ...)
 type refKind string

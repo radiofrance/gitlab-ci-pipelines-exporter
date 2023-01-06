@@ -10,7 +10,6 @@ type (
 			Ref            string          `json:"ref,omitempty"`
 			Tag            bool            `json:"tag,omitempty"`
 			Status         status          `json:"status,omitempty"`
-			CreatedAt      DateTime        `json:"created_at,omitempty"`
 			Duration       Option[float64] `json:"duration,omitempty"`
 			QueuedDuration Option[float64] `json:"queued_duration,omitempty"`
 		} `json:"object_attributes,omitempty"`
