@@ -22,6 +22,6 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - uses: helm/chart-releaser-action@98bccfd32b0f76149d188912ac8e45ddd3f8695f # tag=v1.4.1
+      - uses: helm/chart-releaser-action@be16258da8010256c6e82849661221415f031968 # v1.5.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
