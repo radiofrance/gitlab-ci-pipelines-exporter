@@ -61,11 +61,16 @@ spec:
                   {{- end }}
             - name: WEB_LISTEN_ADDRESS
               value: :{{ .Values.containerPorts.http }}
+            - name: TELEMETRY_LISTEN_ADDRESS
+              value: :{{ .Values.containerPorts.metrics }}
             - name: LOG_LEVEL
               value: {{ .Values.gcpe.logLevel }}
           ports:
             - name: http
               containerPort: {{ .Values.containerPorts.http }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.containerPorts.metrics }}
               protocol: TCP
           livenessProbe:
             httpGet: &httpProbe

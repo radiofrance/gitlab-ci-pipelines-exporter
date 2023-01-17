@@ -20,16 +20,13 @@ spec:
     - host: {{ .Values.ingress.hostname }}
       http:
         paths:
-          - path: {{ printf "%s/pipeline" .Values.ingress.path | clean }}
-            pathType: Exact
-            backend: &backend
+          - path: {{ .Values.ingress.path | clean }}
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
               service:
                 name: {{ include "gitlab-ci-pipelines-exporter.fullname" . }}
                 port:
                   name: http
-          - path: {{ printf "%s/job" .Values.ingress.path | clean }}
-            pathType: Exact
-            backend: *backend
     {{- end }}
   {{- if .Values.ingress.tls }}
   tls:

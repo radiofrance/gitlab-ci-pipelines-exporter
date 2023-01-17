@@ -25,9 +25,15 @@ spec:
   {{- end }}
   ports:
     - name: http
-      port: {{ coalesce .Values.service.ports.http .Values.service.port}}
+      port: {{ .Values.service.ports.http }}
       targetPort: http
       {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.nodePorts.http)) }}
       nodePort: {{ .Values.service.nodePorts.http }}
+      {{- end }}
+    - name: metrics
+      port: {{ .Values.service.ports.metrics }}
+      targetPort: metrics
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.nodePorts.http)) }}
+      nodePort: {{ .Values.service.nodePorts.metrics }}
       {{- end }}
   selector: {{- include "gitlab-ci-pipelines-exporter.selectorLabels" . | nindent 4 }}
