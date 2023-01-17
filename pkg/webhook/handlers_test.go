@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/collectors"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
@@ -26,7 +27,7 @@ func (suite *PipelineHandlerTestSuite) SetupSuite() {
 
 func (suite *PipelineHandlerTestSuite) SetupTest() {
 	suite.webhook = &Webhook{
-		Collectors: Collectors{
+		Collectors: metrics.Collectors{
 			IDCollector:                    collectors.NewCollectorID(),
 			DurationSecondsCollector:       collectors.NewCollectorDurationSeconds(),
 			QueuedDurationSecondsCollector: collectors.NewCollectorQueuedDurationSeconds(),
@@ -166,7 +167,7 @@ func (suite *JobHandlerTestSuite) SetupSuite() {
 
 func (suite *JobHandlerTestSuite) SetupTest() {
 	suite.webhook = &Webhook{
-		Collectors: Collectors{
+		Collectors: metrics.Collectors{
 			JobIDCollector:                    collectors.NewCollectorJobID(),
 			JobDurationSecondsCollector:       collectors.NewCollectorJobDurationSeconds(),
 			JobQueuedDurationSecondsCollector: collectors.NewCollectorJobQueuedDurationSeconds(),

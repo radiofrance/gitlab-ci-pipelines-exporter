@@ -1,13 +1,15 @@
-package webhook
+package http_test
 
 import (
+	"bytes"
 	"net"
 	"testing"
 
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/http"
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_errToJson(t *testing.T) {
+func Test_WriteError(t *testing.T) {
 	tcases := []struct {
 		err      any
 		expected string
@@ -19,6 +21,9 @@ func Test_errToJson(t *testing.T) {
 	}
 
 	for _, tcase := range tcases {
-		assert.Equal(t, tcase.expected, string(errToJson(tcase.err)))
+		var buf bytes.Buffer
+		http.WriteError(&buf, tcase.err)
+
+		assert.Equal(t, tcase.expected, buf.String())
 	}
 }
