@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/collectors"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,15 +26,8 @@ func (suite *PipelineHandlerTestSuite) SetupSuite() {
 
 func (suite *PipelineHandlerTestSuite) SetupTest() {
 	suite.webhook = &Webhook{
-		Collectors: metrics.Collectors{
-			IDCollector:                    collectors.NewCollectorID(),
-			DurationSecondsCollector:       collectors.NewCollectorDurationSeconds(),
-			QueuedDurationSecondsCollector: collectors.NewCollectorQueuedDurationSeconds(),
-			RunCountCollector:              collectors.NewCollectorRunCount(),
-			StatusCollector:                collectors.NewCollectorStatus(),
-			TimestampCollector:             collectors.NewCollectorTimestamp(),
-		},
-		log: zap.NewNop(),
+		collectors: metrics.NewPrometheusCollectors(),
+		log:        zap.NewNop(),
 	}
 }
 
@@ -48,20 +40,20 @@ func (suite *PipelineHandlerTestSuite) TestSingleEvent() {
 		},
 
 		map[prometheus.Collector]string{
-			suite.webhook.IDCollector: `
+			suite.webhook.collectors.ID: `
 # HELP gitlab_ci_pipeline_id ID of the most recent pipeline
 # TYPE gitlab_ci_pipeline_id gauge
 gitlab_ci_pipeline_id{kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832"} 4223
 `,
-			suite.webhook.TimestampCollector: `
+			suite.webhook.collectors.Timestamp: `
 # HELP gitlab_ci_pipeline_timestamp Timestamp of the last update of the most recent pipeline
 # TYPE gitlab_ci_pipeline_timestamp gauge
 gitlab_ci_pipeline_timestamp{kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832"} 0
 `,
-			suite.webhook.QueuedDurationSecondsCollector: ``,
-			suite.webhook.DurationSecondsCollector:       ``,
-			suite.webhook.RunCountCollector:              ``,
-			suite.webhook.StatusCollector: `
+			suite.webhook.collectors.QueuedDurationSeconds: ``,
+			suite.webhook.collectors.DurationSeconds:       ``,
+			suite.webhook.collectors.RunCount:              ``,
+			suite.webhook.collectors.Status: `
 # HELP gitlab_ci_pipeline_status Status of the most recent pipeline
 # TYPE gitlab_ci_pipeline_status gauge
 gitlab_ci_pipeline_status{kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",status="canceled"} 0
@@ -95,34 +87,34 @@ func (suite *PipelineHandlerTestSuite) TestMultipleEvents() {
 		},
 
 		map[prometheus.Collector]string{
-			suite.webhook.IDCollector: `
+			suite.webhook.collectors.ID: `
 # HELP gitlab_ci_pipeline_id ID of the most recent pipeline
 # TYPE gitlab_ci_pipeline_id gauge
 gitlab_ci_pipeline_id{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 4228
 gitlab_ci_pipeline_id{kind="tag",project="radiofrance/gitlab-ci-pipelines-exporter",ref="v1.0.0"} 4229
 `,
-			suite.webhook.TimestampCollector: `
+			suite.webhook.collectors.Timestamp: `
 # HELP gitlab_ci_pipeline_timestamp Timestamp of the last update of the most recent pipeline
 # TYPE gitlab_ci_pipeline_timestamp gauge
 gitlab_ci_pipeline_timestamp{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 0
 gitlab_ci_pipeline_timestamp{kind="tag",project="radiofrance/gitlab-ci-pipelines-exporter",ref="v1.0.0"} 0
 `,
-			suite.webhook.QueuedDurationSecondsCollector: `
+			suite.webhook.collectors.QueuedDurationSeconds: `
 # HELP gitlab_ci_pipeline_queued_duration_seconds Duration in seconds the most recent pipeline has been queued before starting
 # TYPE gitlab_ci_pipeline_queued_duration_seconds gauge
 gitlab_ci_pipeline_queued_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 2.343087599
 `,
-			suite.webhook.DurationSecondsCollector: `
+			suite.webhook.collectors.DurationSeconds: `
 # HELP gitlab_ci_pipeline_duration_seconds Duration in seconds of the most recent pipeline
 # TYPE gitlab_ci_pipeline_duration_seconds gauge
 gitlab_ci_pipeline_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 91.140114
 `,
-			suite.webhook.RunCountCollector: `
+			suite.webhook.collectors.RunCount: `
 # HELP gitlab_ci_pipeline_run_count Number of executions of a pipeline
 # TYPE gitlab_ci_pipeline_run_count counter
 gitlab_ci_pipeline_run_count{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 2
 `,
-			suite.webhook.StatusCollector: `
+			suite.webhook.collectors.Status: `
 # HELP gitlab_ci_pipeline_status Status of the most recent pipeline
 # TYPE gitlab_ci_pipeline_status gauge
 gitlab_ci_pipeline_status{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",status="canceled"} 0
@@ -167,15 +159,8 @@ func (suite *JobHandlerTestSuite) SetupSuite() {
 
 func (suite *JobHandlerTestSuite) SetupTest() {
 	suite.webhook = &Webhook{
-		Collectors: metrics.Collectors{
-			JobIDCollector:                    collectors.NewCollectorJobID(),
-			JobDurationSecondsCollector:       collectors.NewCollectorJobDurationSeconds(),
-			JobQueuedDurationSecondsCollector: collectors.NewCollectorJobQueuedDurationSeconds(),
-			JobRunCountCollector:              collectors.NewCollectorJobRunCount(),
-			JobStatusCollector:                collectors.NewCollectorJobStatus(),
-			JobTimestampCollector:             collectors.NewCollectorJobTimestamp(),
-		},
-		log: zap.NewNop(),
+		collectors: metrics.NewPrometheusCollectors(),
+		log:        zap.NewNop(),
 	}
 }
 
@@ -186,20 +171,20 @@ func (suite *JobHandlerTestSuite) TestSingleEvent() {
 			`{"ref":"refs/merge-requests/9832/merge","build_id":0,"build_name":"golang-ci-lint","build_stage":"quality","build_status":"created","project_name":"radiofrance / gitlab-ci-pipelines-exporter"}`,
 		},
 		map[prometheus.Collector]string{
-			suite.webhook.JobIDCollector: `
+			suite.webhook.collectors.JobID: `
 # HELP gitlab_ci_pipeline_job_id ID of the most recent job
 # TYPE gitlab_ci_pipeline_job_id gauge
 gitlab_ci_pipeline_job_id{job_name="golang-ci-lint",kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",stage="quality"} 0
 `,
-			suite.webhook.JobTimestampCollector: `
+			suite.webhook.collectors.JobTimestamp: `
 # HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the the most recent job
 # TYPE gitlab_ci_pipeline_job_timestamp gauge
 gitlab_ci_pipeline_job_timestamp{job_name="golang-ci-lint",kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",stage="quality"} 0
 `,
-			suite.webhook.JobDurationSecondsCollector:       ``,
-			suite.webhook.JobQueuedDurationSecondsCollector: ``,
-			suite.webhook.JobRunCountCollector:              ``,
-			suite.webhook.JobStatusCollector: `
+			suite.webhook.collectors.JobDurationSeconds:       ``,
+			suite.webhook.collectors.JobQueuedDurationSeconds: ``,
+			suite.webhook.collectors.JobRunCount:              ``,
+			suite.webhook.collectors.JobStatus: `
 # HELP gitlab_ci_pipeline_job_status Status of the most recent job
 # TYPE gitlab_ci_pipeline_job_status gauge
 gitlab_ci_pipeline_job_status{job_name="golang-ci-lint",kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",stage="quality",status="canceled"} 0
@@ -231,34 +216,34 @@ func (suite *JobHandlerTestSuite) TestMultipleEvents() {
 			`{"ref":"master","build_id":4235,"build_name":"build-image","build_stage":"build","build_status":"created","project_name":"radiofrance / gitlab-ci-pipelines-exporter"}`,
 		},
 		map[prometheus.Collector]string{
-			suite.webhook.JobIDCollector: `
+			suite.webhook.collectors.JobID: `
 # HELP gitlab_ci_pipeline_job_id ID of the most recent job
 # TYPE gitlab_ci_pipeline_job_id gauge
 gitlab_ci_pipeline_job_id{job_name="build-image",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="build"} 4235
 gitlab_ci_pipeline_job_id{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 4234
 `,
-			suite.webhook.JobTimestampCollector: `
+			suite.webhook.collectors.JobTimestamp: `
 # HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the the most recent job
 # TYPE gitlab_ci_pipeline_job_timestamp gauge
 gitlab_ci_pipeline_job_timestamp{job_name="build-image",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="build"} 0
 gitlab_ci_pipeline_job_timestamp{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 0
 `,
-			suite.webhook.JobDurationSecondsCollector: `
+			suite.webhook.collectors.JobDurationSeconds: `
 # HELP gitlab_ci_pipeline_job_duration_seconds Duration in seconds of the most recent job
 # TYPE gitlab_ci_pipeline_job_duration_seconds gauge
 gitlab_ci_pipeline_job_duration_seconds{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 196.868193
 `,
-			suite.webhook.JobQueuedDurationSecondsCollector: `
+			suite.webhook.collectors.JobQueuedDurationSeconds: `
 # HELP gitlab_ci_pipeline_job_queued_duration_seconds Duration in seconds the most recent job has been queued before starting
 # TYPE gitlab_ci_pipeline_job_queued_duration_seconds gauge
 gitlab_ci_pipeline_job_queued_duration_seconds{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 0.074549967
 `,
-			suite.webhook.JobRunCountCollector: `
+			suite.webhook.collectors.JobRunCount: `
 # HELP gitlab_ci_pipeline_job_run_count Number of executions of a job
 # TYPE gitlab_ci_pipeline_job_run_count counter
 gitlab_ci_pipeline_job_run_count{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 2
 `,
-			suite.webhook.JobStatusCollector: `
+			suite.webhook.collectors.JobStatus: `
 # HELP gitlab_ci_pipeline_job_status Status of the most recent job
 # TYPE gitlab_ci_pipeline_job_status gauge
 gitlab_ci_pipeline_job_status{job_name="build-image",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="build",status="canceled"} 0

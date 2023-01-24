@@ -14,16 +14,16 @@ import (
 
 type (
 	Webhook struct {
-		metrics.Collectors
-		mux *http.ServeMux
-		log *zap.Logger
+		collectors *metrics.PrometheusCollectors
+		mux        *http.ServeMux
+		log        *zap.Logger
 	}
 )
 
 // NewWebhook creates a new instance of the Gitlab event webhook handler.
-func NewWebhook(secretToken string, opts ...Option) *Webhook {
+func NewWebhook(secretToken string, collectors *metrics.PrometheusCollectors, opts ...Option) *Webhook {
 	webhook := &Webhook{
-		Collectors: metrics.AllCollectors(),
+		collectors: collectors,
 		mux:        http.NewServeMux(),
 		log:        zap.Must(zap.NewProduction()),
 	}

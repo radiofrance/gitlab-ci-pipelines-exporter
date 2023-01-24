@@ -22,23 +22,23 @@ func (w Webhook) handlePipelineEvent(event gitlab_events.PipelineEvent) error {
 	project, ref, kind := event.ProjectName(), event.Ref(), event.RefKind()
 	labels := prometheus.Labels{"project": project, "ref": ref, "kind": kind.String()}
 
-	w.IDCollector.With(labels).Set(float64(event.ObjectAttributes.ID))
-	w.TimestampCollector.With(labels).Set(timestamp())
+	w.collectors.ID.With(labels).Set(float64(event.ObjectAttributes.ID))
+	w.collectors.Timestamp.With(labels).Set(timestamp())
 
 	if event.ObjectAttributes.QueuedDuration.IsSome() {
-		w.QueuedDurationSecondsCollector.With(labels).Set(event.ObjectAttributes.QueuedDuration.Unwrap())
+		w.collectors.QueuedDurationSeconds.With(labels).Set(event.ObjectAttributes.QueuedDuration.Unwrap())
 	}
 	if event.ObjectAttributes.Duration.IsSome() {
-		w.DurationSecondsCollector.With(labels).Set(event.ObjectAttributes.Duration.Unwrap())
+		w.collectors.DurationSeconds.With(labels).Set(event.ObjectAttributes.Duration.Unwrap())
 	}
 
 	if event.ObjectAttributes.Status == gitlab_events.Running {
-		w.RunCountCollector.With(labels).Inc()
+		w.collectors.RunCount.With(labels).Inc()
 	}
 
 	for _, status := range gitlab_events.Statuses[1:] {
 		labels["status"] = status
-		w.StatusCollector.With(labels).Set(btof[event.ObjectAttributes.Status.String() == status])
+		w.collectors.Status.With(labels).Set(btof[event.ObjectAttributes.Status.String() == status])
 	}
 	return nil
 }
@@ -52,23 +52,23 @@ func (w Webhook) handleJobEvent(event gitlab_events.JobEvent) error {
 		"stage": stage, "job_name": job,
 	}
 
-	w.JobIDCollector.With(labels).Set(float64(event.BuildID))
-	w.JobTimestampCollector.With(labels).Set(timestamp())
+	w.collectors.JobID.With(labels).Set(float64(event.BuildID))
+	w.collectors.JobTimestamp.With(labels).Set(timestamp())
 
 	if event.BuildQueuedDuration.IsSome() {
-		w.JobQueuedDurationSecondsCollector.With(labels).Set(event.BuildQueuedDuration.Unwrap())
+		w.collectors.JobQueuedDurationSeconds.With(labels).Set(event.BuildQueuedDuration.Unwrap())
 	}
 	if event.BuildDuration.IsSome() {
-		w.JobDurationSecondsCollector.With(labels).Set(event.BuildDuration.Unwrap())
+		w.collectors.JobDurationSeconds.With(labels).Set(event.BuildDuration.Unwrap())
 	}
 
 	if event.BuildStatus == gitlab_events.Running {
-		w.JobRunCountCollector.With(labels).Inc()
+		w.collectors.JobRunCount.With(labels).Inc()
 	}
 
 	for _, status := range gitlab_events.Statuses[1:] {
 		labels["status"] = status
-		w.JobStatusCollector.With(labels).Set(btof[event.BuildStatus.String() == status])
+		w.collectors.JobStatus.With(labels).Set(btof[event.BuildStatus.String() == status])
 	}
 	return nil
 }

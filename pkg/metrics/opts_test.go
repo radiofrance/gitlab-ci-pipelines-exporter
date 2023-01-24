@@ -9,6 +9,6 @@ import (
 
 func TestWithZapLogger(t *testing.T) {
 	logger := zap.NewNop()
-	handler := NewHandler("/metrics", AllCollectors(), WithZapLogger(logger))
+	handler := NewHandler("/metrics", NewPrometheusCollectors(), WithZapLogger(logger))
 	assert.Equal(t, logger, handler.log)
 }

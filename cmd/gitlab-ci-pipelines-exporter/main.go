@@ -20,9 +20,6 @@ import (
 var version = "devel"
 
 func main() {
-	_, ctxCancel := context.WithCancel(context.Background())
-	defer ctxCancel()
-
 	app := cli.NewApp()
 	app.Name = "gitlab-ci-pipelines-exporter"
 	app.Usage = "Export metrics about GitLab CI pipelines statuses"
@@ -108,10 +105,13 @@ func main() {
 
 		// Graceful shutdowns
 		onShutdown := make(chan os.Signal, 1)
-		signal.Notify(onShutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT)
+		signal.Notify(onShutdown, syscall.SIGINT, syscall.SIGTERM)
+
+		collectors := metrics.NewPrometheusCollectors()
 
 		webhookHandler := webhook.NewWebhook(
 			ctx.String("gitlab.webhook-secret-token"),
+			collectors,
 			webhook.WithZapLogger(logger),
 		)
 
@@ -131,7 +131,7 @@ func main() {
 			Addr: ctx.String("telemetry.listen-address"),
 			Handler: metrics.NewHandler(
 				ctx.String("telemetry.path"),
-				webhookHandler.Collectors,
+				collectors,
 				metrics.WithZapLogger(logger),
 			),
 		}
@@ -145,7 +145,6 @@ func main() {
 
 		<-onShutdown
 		logger.Info("received exit signal, gracefully shutting down...")
-		ctxCancel()
 
 		httpServerContext, forceHTTPServerShutdown := context.WithTimeout(context.Background(), 5*time.Second)
 		defer forceHTTPServerShutdown()
