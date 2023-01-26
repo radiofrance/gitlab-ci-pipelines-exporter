@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/xanzy/go-gitlab"
 )
 
 func TestJobEvent_ProjectName(t *testing.T) {
@@ -11,10 +12,10 @@ func TestJobEvent_ProjectName(t *testing.T) {
 		event    JobEvent
 		expected string
 	}{
-		"simple":    {JobEvent{SpacedProjectName: "aaa / bbb"}, "aaa/bbb"},
-		"formatted": {JobEvent{SpacedProjectName: "aaa/bbb"}, "aaa/bbb"},
-		"multiple":  {JobEvent{SpacedProjectName: "aaa / bbb / ccc / ddd"}, "aaa/bbb/ccc/ddd"},
-		"random":    {JobEvent{SpacedProjectName: "aaa / bbb/ccc / ddd"}, "aaa/bbb/ccc/ddd"},
+		"simple":    {JobEvent{JobEvent: gitlab.JobEvent{ProjectName: "aaa / bbb"}}, "aaa/bbb"},
+		"formatted": {JobEvent{JobEvent: gitlab.JobEvent{ProjectName: "aaa/bbb"}}, "aaa/bbb"},
+		"multiple":  {JobEvent{JobEvent: gitlab.JobEvent{ProjectName: "aaa / bbb / ccc / ddd"}}, "aaa/bbb/ccc/ddd"},
+		"random":    {JobEvent{JobEvent: gitlab.JobEvent{ProjectName: "aaa / bbb/ccc / ddd"}}, "aaa/bbb/ccc/ddd"},
 	}
 
 	for name, tcase := range tcases {
@@ -29,9 +30,9 @@ func TestJobEvent_Ref(t *testing.T) {
 		event    JobEvent
 		expected string
 	}{
-		"ref:branch":        {JobEvent{FullRef: "master"}, "master"},
-		"ref:tag":           {JobEvent{FullRef: "v1.0.0", Tag: true}, "v1.0.0"},
-		"ref:merge_request": {JobEvent{FullRef: "refs/merge-requests/1029/merge"}, "1029"},
+		"ref:branch":        {JobEvent{JobEvent: gitlab.JobEvent{Ref: "master"}}, "master"},
+		"ref:tag":           {JobEvent{JobEvent: gitlab.JobEvent{Ref: "v1.0.0", Tag: true}}, "v1.0.0"},
+		"ref:merge_request": {JobEvent{JobEvent: gitlab.JobEvent{Ref: "refs/merge-requests/1029/merge"}}, "1029"},
 	}
 
 	for name, tcase := range tcases {
@@ -44,11 +45,11 @@ func TestJobEvent_Ref(t *testing.T) {
 func TestJobEvent_RefKind(t *testing.T) {
 	tcases := map[string]struct {
 		event    JobEvent
-		expected refKind
+		expected Kind
 	}{
-		"ref:branch":        {JobEvent{FullRef: "master"}, BranchKind},
-		"ref:tag":           {JobEvent{FullRef: "v1.0.0", Tag: true}, TagKind},
-		"ref:merge_request": {JobEvent{FullRef: "refs/merge-requests/1029/merge"}, MergeRequestKind},
+		"ref:branch":        {JobEvent{JobEvent: gitlab.JobEvent{Ref: "master"}}, KindBranch},
+		"ref:tag":           {JobEvent{JobEvent: gitlab.JobEvent{Ref: "v1.0.0", Tag: true}}, KindTag},
+		"ref:merge_request": {JobEvent{JobEvent: gitlab.JobEvent{Ref: "refs/merge-requests/1029/merge"}}, KindMergeRequest},
 	}
 
 	for name, tcase := range tcases {
@@ -56,23 +57,4 @@ func TestJobEvent_RefKind(t *testing.T) {
 			assert.Equal(t, tcase.expected, tcase.event.RefKind())
 		})
 	}
-}
-
-func TestJobEvent_Stage(t *testing.T) {
-	assert.Equal(t, "quality", JobEvent{BuildStage: "quality"}.Stage())
-}
-
-func TestJobEvent_JobName(t *testing.T) {
-	assert.Equal(t, "sonarqube", JobEvent{BuildName: "sonarqube"}.JobName())
-}
-
-func TestJobEvent_RunnerDescription(t *testing.T) {
-	assert.Equal(
-		t,
-		"gitlab-runner-shared-69fd46fcd-w7x5m",
-		JobEvent{Runner: struct {
-			Description string `json:"description"`
-		}{Description: "gitlab-runner-shared-69fd46fcd-w7x5m"},
-		}.RunnerDescription(),
-	)
 }

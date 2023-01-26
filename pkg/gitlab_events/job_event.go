@@ -2,73 +2,48 @@ package gitlab_events
 
 import (
 	"strings"
+
+	"github.com/xanzy/go-gitlab"
 )
 
 type (
 	// JobEvent contains all status information about a Gitlab Job event.
 	JobEvent struct {
-		FullRef             string          `json:"ref,omitempty"`
-		Tag                 bool            `json:"tag,omitempty"`
-		BuildID             int             `json:"build_id,omitempty"`
-		BuildName           string          `json:"build_name,omitempty"`
-		BuildStage          string          `json:"build_stage,omitempty"`
-		BuildStatus         status          `json:"build_status,omitempty"`
-		BuildDuration       Option[float64] `json:"build_duration,omitempty"`
-		BuildQueuedDuration Option[float64] `json:"build_queued_duration,omitempty"`
-		PipelineID          int             `json:"pipeline_id,omitempty"`
+		gitlab.JobEvent
 
-		Runner struct {
-			Description string `json:"description"`
-		} `json:"runner,omitempty"`
-
-		SpacedProjectName string `json:"project_name,omitempty"`
+		BuildQueuedDuration float64 `json:"build_queued_duration,omitempty"`
 	}
 )
 
 // ProjectName returns the Gitlab project name.
 func (j JobEvent) ProjectName() string {
-	return strings.ReplaceAll(j.SpacedProjectName, " / ", "/")
+	return strings.ReplaceAll(j.JobEvent.ProjectName, " / ", "/")
 }
 
 // RefKind returns what kind of ref as generated the event.
-func (j JobEvent) RefKind() refKind {
+func (j JobEvent) RefKind() Kind {
 	switch {
 	case j.Tag:
-		return TagKind
-	case strings.HasPrefix(j.FullRef, "refs/merge-requests/"):
-		return MergeRequestKind
+		return KindTag
+	case strings.HasPrefix(j.JobEvent.Ref, "refs/merge-requests/"):
+		return KindMergeRequest
 	default:
-		return BranchKind
+		return KindBranch
 	}
 }
 
 // Ref returns the reference that triggers this event.
 func (j JobEvent) Ref() string {
 	switch j.RefKind() {
-	case MergeRequestKind:
-		ref := j.FullRef
+	case KindMergeRequest:
+		ref := j.JobEvent.Ref
 		ref = strings.TrimPrefix(ref, "refs/merge-requests/")
 		ref = strings.TrimSuffix(ref, "/merge")
 
 		return ref
-	case TagKind, BranchKind:
+	case KindTag, KindBranch:
 		fallthrough
 	default:
-		return j.FullRef
+		return j.JobEvent.Ref
 	}
-}
-
-// Stage returns the stage name of the current job.
-func (j JobEvent) Stage() string {
-	return j.BuildStage
-}
-
-// JobName returns the current job name.
-func (j JobEvent) JobName() string {
-	return j.BuildName
-}
-
-// RunnerDescription returns the runner description that ran this job.
-func (j JobEvent) RunnerDescription() string {
-	return j.Runner.Description
 }

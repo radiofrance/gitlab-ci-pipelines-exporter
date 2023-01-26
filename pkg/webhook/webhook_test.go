@@ -37,75 +37,77 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			uri:                "/healthz",
 			expectedStatusCode: http.StatusOK,
 		},
-		"Pipelines route responds 500 when not authenticated": {
+		"Webhooks route responds 500 when not authenticated": {
 			method:             http.MethodPost,
-			uri:                "/pipeline",
+			uri:                "/hooks",
 			expectedStatusCode: http.StatusInternalServerError,
 			expectedBody:       `{"error":"invalid Gitlab webhook secret token"}`,
 		},
-		"Pipelines route responds 200 when authenticated": {
+		"Webhooks route responds 200 when authenticated": {
 			method:             http.MethodPost,
-			uri:                "/pipeline",
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
-			event:              `{"foo":"bar"}`,
+			event:              `{"object_kind":"build"}`,
 			expectedStatusCode: http.StatusOK,
 		},
-		"Pipeline route responds 405 when invalid method": {
+		"Webhooks route responds 405 when invalid method": {
 			method:             http.MethodGet,
-			uri:                "/pipeline",
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
 			expectedStatusCode: http.StatusMethodNotAllowed,
 		},
-		"Pipeline route handles invalid event data": {
+		"Webhooks route responds 501 when object_kind unsupported": {
 			method:             http.MethodPost,
-			uri:                "/pipeline",
+			uri:                "/hooks",
+			headers:            authenticatedHeaders,
+			event:              `{"object_kind":"unknown"}`,
+			expectedStatusCode: http.StatusNotImplemented,
+		},
+		"Webhooks route handles invalid event data": {
+			method:             http.MethodPost,
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
 			event:              `true`,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"json: cannot unmarshal bool into Go value of type gitlab_events.PipelineEvent"}`,
+			expectedBody:       `{"error":"json: cannot unmarshal bool into Go value of type struct { ObjectKind string \"json:\\\"object_kind\\\"\" }"}`,
 		},
-		"Pipeline route handles invalid json payload": {
+		"Webhooks route handles invalid json payload": {
 			method:             http.MethodPost,
-			uri:                "/pipeline",
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
 			event:              `not a json`,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedBody:       `{"error":"invalid character 'o' in literal null (expecting 'u')"}`,
 		},
-		"Job route responds 500 when not authenticated": {
+		"Webhooks route handles invalid pipeline event": {
 			method:             http.MethodPost,
-			uri:                "/job",
-			expectedStatusCode: http.StatusInternalServerError,
-			expectedBody:       `{"error":"invalid Gitlab webhook secret token"}`,
-		},
-		"Job route responds 200 when authenticated": {
-			method:             http.MethodPost,
-			uri:                "/job",
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
-			event:              `{"foo":"bar"}`,
+			event:              `{"object_kind":"pipeline","object_attributes":["invalid"]}`,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedBody:       `{"error":"failed to unmarshall json into *gitlab_events.PipelineEvent"}`,
+		},
+		"Webhooks route handles invalid job event": {
+			method:             http.MethodPost,
+			uri:                "/hooks",
+			headers:            authenticatedHeaders,
+			event:              `{"object_kind":"build","ref":["invalid"]}`,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedBody:       `{"error":"failed to unmarshall json into *gitlab_events.JobEvent"}`,
+		},
+		"Webhooks route handles pipeline event": {
+			method:             http.MethodPost,
+			uri:                "/hooks",
+			headers:            authenticatedHeaders,
+			event:              `{"object_kind":"pipeline"}`,
 			expectedStatusCode: http.StatusOK,
 		},
-		"Job route responds 405 when invalid method": {
-			method:             http.MethodGet,
-			uri:                "/job",
-			headers:            authenticatedHeaders,
-			expectedStatusCode: http.StatusMethodNotAllowed,
-		},
-		"Job route handles invalid event data": {
+		"Webhooks route handles job event": {
 			method:             http.MethodPost,
-			uri:                "/job",
+			uri:                "/hooks",
 			headers:            authenticatedHeaders,
-			event:              `true`,
-			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"json: cannot unmarshal bool into Go value of type gitlab_events.JobEvent"}`,
-		},
-		"Job route handles invalid json payload": {
-			method:             http.MethodPost,
-			uri:                "/job",
-			headers:            authenticatedHeaders,
-			event:              `not a json`,
-			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"invalid character 'o' in literal null (expecting 'u')"}`,
+			event:              `{"object_kind":"build"}`,
+			expectedStatusCode: http.StatusOK,
 		},
 	}
 
