@@ -1,4 +1,4 @@
-package webhook
+package metrics
 
 import (
 	"testing"
@@ -9,6 +9,6 @@ import (
 
 func TestWithZapLogger(t *testing.T) {
 	logger := zap.NewNop()
-	webhook := NewWebhook("", nil, WithZapLogger(logger))
-	assert.Equal(t, logger, webhook.log)
+	handler := NewHandler("/metrics", NewPrometheusCollectors(), WithZapLogger(logger))
+	assert.Equal(t, logger, handler.log)
 }

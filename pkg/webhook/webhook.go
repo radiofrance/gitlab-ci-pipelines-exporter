@@ -6,93 +6,46 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/collectors"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	gcpehttp "github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/http"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/urfave/negroni"
 	"go.uber.org/zap"
 )
 
 type (
-	// Collectors groups all Prometheus collectors used to exporter Gitlab CI metrics.
-	Collectors struct {
-		IDCollector                       *prometheus.GaugeVec
-		DurationSecondsCollector          *prometheus.GaugeVec
-		QueuedDurationSecondsCollector    *prometheus.GaugeVec
-		RunCountCollector                 *prometheus.CounterVec
-		StatusCollector                   *prometheus.GaugeVec
-		TimestampCollector                *prometheus.GaugeVec
-		JobIDCollector                    *prometheus.GaugeVec
-		JobDurationSecondsCollector       *prometheus.GaugeVec
-		JobQueuedDurationSecondsCollector *prometheus.GaugeVec
-		JobRunCountCollector              *prometheus.CounterVec
-		JobStatusCollector                *prometheus.GaugeVec
-		JobTimestampCollector             *prometheus.GaugeVec
-	}
-
 	Webhook struct {
-		http.Handler
-		Collectors
-
-		log *zap.Logger
+		collectors *metrics.PrometheusCollectors
+		mux        *http.ServeMux
+		log        *zap.Logger
 	}
 )
 
 // NewWebhook creates a new instance of the Gitlab event webhook handler.
-func NewWebhook(pattern, secretToken string, opts ...Option) *Webhook {
+func NewWebhook(secretToken string, collectors *metrics.PrometheusCollectors, opts ...Option) *Webhook {
 	webhook := &Webhook{
-		Handler: http.NewServeMux(),
-		Collectors: Collectors{
-			IDCollector:                       collectors.NewCollectorID(),
-			DurationSecondsCollector:          collectors.NewCollectorDurationSeconds(),
-			QueuedDurationSecondsCollector:    collectors.NewCollectorQueuedDurationSeconds(),
-			RunCountCollector:                 collectors.NewCollectorRunCount(),
-			StatusCollector:                   collectors.NewCollectorStatus(),
-			TimestampCollector:                collectors.NewCollectorTimestamp(),
-			JobIDCollector:                    collectors.NewCollectorJobID(),
-			JobDurationSecondsCollector:       collectors.NewCollectorJobDurationSeconds(),
-			JobQueuedDurationSecondsCollector: collectors.NewCollectorJobQueuedDurationSeconds(),
-			JobRunCountCollector:              collectors.NewCollectorJobRunCount(),
-			JobStatusCollector:                collectors.NewCollectorJobStatus(),
-			JobTimestampCollector:             collectors.NewCollectorJobTimestamp(),
-		},
-
-		log: zap.Must(zap.NewProduction()),
+		collectors: collectors,
+		mux:        http.NewServeMux(),
+		log:        zap.Must(zap.NewProduction()),
 	}
-
-	prometheus.MustRegister(
-		webhook.IDCollector,
-		webhook.DurationSecondsCollector,
-		webhook.QueuedDurationSecondsCollector,
-		webhook.RunCountCollector,
-		webhook.StatusCollector,
-		webhook.TimestampCollector,
-		webhook.JobIDCollector,
-		webhook.JobDurationSecondsCollector,
-		webhook.JobQueuedDurationSecondsCollector,
-		webhook.JobRunCountCollector,
-		webhook.JobStatusCollector,
-		webhook.JobTimestampCollector,
-	)
 
 	for _, opt := range opts {
 		opt(webhook)
 	}
 
-	mux := webhook.Handler.(*http.ServeMux)
-	mux.Handle("/healthz", http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+	webhook.mux.Handle("/healthz", http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		writer.WriteHeader(200)
 	}))
 
-	root := negroni.New(NewRecoverMiddleware(webhook.log), NewZapMiddleware(webhook.log))
-	mux.Handle(pattern, root.With(negroni.Wrap(promhttp.Handler())))
-
+	root := negroni.New(gcpehttp.NewRecoverMiddleware(webhook.log), gcpehttp.NewZapMiddleware(webhook.log))
 	gitlab := root.With(NewGitlabSecretTokenMiddleware(secretToken))
-	mux.Handle("/pipeline", gitlab.With(negroni.Wrap(processHandler(webhook.handlePipelineEvent))))
-	mux.Handle("/job", gitlab.With(negroni.Wrap(processHandler(webhook.handleJobEvent))))
+	webhook.mux.Handle("/pipeline", gitlab.With(negroni.Wrap(processHandler(webhook.handlePipelineEvent))))
+	webhook.mux.Handle("/job", gitlab.With(negroni.Wrap(processHandler(webhook.handleJobEvent))))
 
 	return webhook
+}
+
+func (webhook Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	webhook.mux.ServeHTTP(w, r)
 }
 
 // processHandler wraps the event handlers to simplify their usage.
@@ -118,7 +71,7 @@ func processHandler[T any](handler func(event T) error) http.HandlerFunc {
 		if err != nil {
 			// NOTE: we return this status code as recommended by Gitlab
 			writer.WriteHeader(http.StatusBadRequest)
-			_, _ = writer.Write(errToJson(err))
+			gcpehttp.WriteError(writer, err)
 			return
 		}
 
@@ -126,7 +79,7 @@ func processHandler[T any](handler func(event T) error) http.HandlerFunc {
 		if err != nil {
 			// NOTE: we return this status code as recommended by Gitlab
 			writer.WriteHeader(http.StatusBadRequest)
-			_, _ = writer.Write(errToJson(err))
+			gcpehttp.WriteError(writer, err)
 			return
 		}
 

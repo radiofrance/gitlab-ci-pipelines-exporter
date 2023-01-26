@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/webhook"
 
 	"github.com/urfave/cli/v2"
@@ -25,14 +30,20 @@ func main() {
 		&cli.StringFlag{
 			Name:    "web.listen-address",
 			Usage:   "address:port to listen on for telemetry",
-			Value:   ":9252",
+			Value:   ":8080",
 			EnvVars: []string{"WEB_LISTEN_ADDRESS"},
 		},
 		&cli.StringFlag{
-			Name:    "web.telemetry-path",
+			Name:    "telemetry.listen-address",
+			Usage:   "Path under which to expose metrics",
+			Value:   ":9252",
+			EnvVars: []string{"TELEMETRY_LISTEN_ADDRESS"},
+		},
+		&cli.StringFlag{
+			Name:    "telemetry.path",
 			Usage:   "Path under which to expose metrics",
 			Value:   "/metrics",
-			EnvVars: []string{"WEB_TELEMETRY_PATH"},
+			EnvVars: []string{"TELEMETRY_PATH"},
 		},
 		&cli.StringFlag{
 			Name:     "gitlab.webhook-secret-token",
@@ -92,15 +103,60 @@ func main() {
 			return err
 		}
 
-		logger.Info(fmt.Sprintf("start listening on %s", ctx.String("web.listen-address")))
-		return http.ListenAndServe(
-			ctx.String("web.listen-address"),
-			webhook.NewWebhook(
-				ctx.String("web.telemetry-path"),
-				ctx.String("gitlab.webhook-secret-token"),
-				webhook.WithZapLogger(logger),
-			),
+		// Graceful shutdowns
+		onShutdown := make(chan os.Signal, 1)
+		signal.Notify(onShutdown, syscall.SIGINT, syscall.SIGTERM)
+
+		collectors := metrics.NewPrometheusCollectors()
+
+		webhookHandler := webhook.NewWebhook(
+			ctx.String("gitlab.webhook-secret-token"),
+			collectors,
+			webhook.WithZapLogger(logger),
 		)
+
+		webhookSrv := &http.Server{
+			Addr:    ctx.String("web.listen-address"),
+			Handler: webhookHandler,
+		}
+
+		go func() {
+			logger.Info(fmt.Sprintf("webhook server listening on %s", ctx.String("web.listen-address")))
+			if err := webhookSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				logger.Fatal("")
+			}
+		}()
+
+		metricsSrv := &http.Server{
+			Addr: ctx.String("telemetry.listen-address"),
+			Handler: metrics.NewHandler(
+				ctx.String("telemetry.path"),
+				collectors,
+				metrics.WithZapLogger(logger),
+			),
+		}
+
+		go func() {
+			logger.Info(fmt.Sprintf("metrics server listening on %s", ctx.String("telemetry.listen-address")))
+			if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				logger.Fatal("")
+			}
+		}()
+
+		<-onShutdown
+		logger.Info("received exit signal, gracefully shutting down...")
+
+		httpServerContext, forceHTTPServerShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+		defer forceHTTPServerShutdown()
+
+		if err := webhookSrv.Shutdown(httpServerContext); err != nil {
+			return err
+		}
+		if err := metricsSrv.Shutdown(httpServerContext); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	if err := app.Run(os.Args); err != nil {

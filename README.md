@@ -75,14 +75,18 @@ gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
 
 ```shell
 docker pull ghcr.io/radiofrance/gitlab-ci-pipelines-exporter
-docker run --publish 9252 ghcr.io/radiofrance/gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
+docker run --publish 8080 --publish 9252 ghcr.io/radiofrance/gitlab-ci-pipelines-exporter --gitlab.webhook-secret-token "GITLAB_SECRET_TOKEN"
 ```
 
 ### Helm
 
 ```shell
 helm repo add radiofrance-gcpe https://radiofrance.github.io/gitlab-ci-pipelines-exporter
-helm upgrade --install gitlab-ci-pipelines-exporter radiofrance-gcpe/gitlab-ci-pipelines-exporter --namespace gitlab-ci-pipelines-exporter --create-namespace --wait --set gitlab.webhook-secret-token="GITLAB_SECRET_TOKEN"
+helm upgrade --install gitlab-ci-pipelines-exporter radiofrance-gcpe/gitlab-ci-pipelines-exporter \
+  --namespace gitlab-ci-pipelines-exporter \
+  --create-namespace \
+  --wait \
+  --set gitlab.webhook-secret-token="GITLAB_SECRET_TOKEN"
 helm test gitlab-ci-pipelines-exporter --namespace gitlab-ci-pipelines-exporter
 ```
 
@@ -102,8 +106,9 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --web.listen-address value           address:port to listen on for telemetry (default: ":9252") [$WEB_LISTEN_ADDRESS]
-   --web.telemetry-path value           Path under which to expose metrics (default: "/metrics") [$WEB_TELEMETRY_PATH]
+   --web.listen-address value           address:port to listen on for incoming webhooks (default: ":8080") [$WEB_LISTEN_ADDRESS]
+   --telemetry.listen-address value     address:port to listen on for telemetry (default: ":9252") [$TELEMETRY_LISTEN_ADDRESS]
+   --telemetry.path value               Path under which to expose telemetry endpoint (default: "/metrics") [$TELEMETRY_PATH]
    --gitlab.webhook-secret-token token  token used to authenticate legitimate requests (overrides config file parameter) [$GITLAB_WEBHOOK_SECRET_TOKEN]
    --log.level value                    Log verbosity (default: "info") [$LOG_LEVEL]
    --help, -h                           show help (default: false)
