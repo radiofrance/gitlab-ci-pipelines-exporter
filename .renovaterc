@@ -33,6 +33,14 @@
       "extends": ["schedule:monthly"]
     },
     {
+      "description": "Group golang version bumps",
+      "matchPackageNames": [
+        "go"
+        "golang/go",
+      ],
+      "groupName": "golang"
+    },
+    {
       "description": "Add 'renovate:need-helm-bump' if Renovate didn't bump the Helm chart version",
       "matchManagers": ["regex"],
       "matchDatasources": ["docker"],
@@ -43,11 +51,13 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["(^|/)Chart\\.yaml$"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s+appVersion: (?<currentValue>[^\\s]+?)\\s"
+      "fileMatch": [
+        "^\\.github/workflows/.*\\.ya?ml"
       ],
-      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?))(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s.*version: (?<currentValue>.*)\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
     }
   ]
 }

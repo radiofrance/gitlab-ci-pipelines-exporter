@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: gitlab-ci-pipelines-exporter
-version: 1.1.0
-# renovate: datasource=docker depName=ghcr.io/radiofrance/gitlab-ci-pipelines-exporter
+version: 1.1.1
+# renovate: image=ghcr.io/radiofrance/gitlab-ci-pipelines-exporter
 appVersion: v1.0.2
 description: Prometheus exporter for Gitlab CI pipelines insights
 home: https://github.com/radiofrance/gitlab-ci-pipelines-exporter
