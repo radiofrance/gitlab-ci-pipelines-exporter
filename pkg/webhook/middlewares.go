@@ -8,8 +8,8 @@ import (
 )
 
 // NewGitlabSecretTokenMiddleware rejects all requests using the wrong Gitlab secret token.
-func NewGitlabSecretTokenMiddleware(token string) negroni.Handler {
-	return negroni.HandlerFunc(func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+func NewGitlabSecretTokenMiddleware(token string) negroni.HandlerFunc {
+	return func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		xtoken := req.Header.Get("X-Gitlab-Token")
 		if xtoken != token {
 			// NOTE: this returns 500 in order to notify Gitlab to disable this webhook. See
@@ -21,5 +21,5 @@ func NewGitlabSecretTokenMiddleware(token string) negroni.Handler {
 		}
 
 		next(writer, req)
-	})
+	}
 }

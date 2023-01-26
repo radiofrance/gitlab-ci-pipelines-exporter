@@ -10,13 +10,13 @@ import (
 )
 
 // NewZapMiddleware creates a negroni middleware to log every request.
-func NewZapMiddleware(logger *zap.Logger) negroni.Handler {
+func NewZapMiddleware(logger *zap.Logger) negroni.HandlerFunc {
 	logger = logger.WithOptions(zap.WithCaller(false))
-	return negroni.HandlerFunc(func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+	return func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		writer = negroni.NewResponseWriter(writer)
 
 		start := time.Now()
-		logger = logger.With(
+		logger := logger.With(
 			zap.String("http_referer", req.Referer()),
 			zap.String("http_user_agent", req.UserAgent()),
 			zap.String("remote_addr", req.RemoteAddr),
@@ -25,28 +25,39 @@ func NewZapMiddleware(logger *zap.Logger) negroni.Handler {
 
 		next(writer, req)
 
+		negroniWriter, hasStatus := writer.(negroni.ResponseWriter)
+		if hasStatus {
+			logger = logger.With(
+				zap.Int("status", negroniWriter.Status()),
+				zap.Int("body_bytes_sent", negroniWriter.Size()),
+			)
+		}
+
 		logger = logger.With(
-			zap.Int("status", writer.(negroni.ResponseWriter).Status()),
-			zap.Int("body_bytes_sent", writer.(negroni.ResponseWriter).Size()),
 			zap.Float32("duration", float32(time.Since(start))/float32(time.Second)),
 		)
 
+		if !hasStatus {
+			logger.Info(req.URL.String())
+			return
+		}
+
 		switch {
-		case writer.(negroni.ResponseWriter).Status() >= 500:
+		case negroniWriter.Status() >= http.StatusInternalServerError:
 			logger.Error(req.URL.String())
-		case writer.(negroni.ResponseWriter).Status() >= 400:
+		case negroniWriter.Status() >= http.StatusBadRequest:
 			logger.Warn(req.URL.String())
 		default:
 			logger.Info(req.URL.String())
 		}
-	})
+	}
 }
 
 // NewRecoverMiddleware recovers from any panic and notify Gitlab through a 400.
-func NewRecoverMiddleware(logger *zap.Logger) negroni.Handler {
+func NewRecoverMiddleware(logger *zap.Logger) negroni.HandlerFunc {
 	logger = logger.WithOptions(zap.AddStacktrace(zap.ErrorLevel))
 
-	return negroni.HandlerFunc(func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+	return func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		defer func() {
 			if err := recover(); err != nil {
 				writer.WriteHeader(http.StatusInternalServerError)
@@ -57,5 +68,5 @@ func NewRecoverMiddleware(logger *zap.Logger) negroni.Handler {
 		}()
 
 		next(writer, req)
-	})
+	}
 }

@@ -11,7 +11,6 @@ import (
 
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/webhook"
-
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -63,104 +62,109 @@ func main() {
 		},
 	}
 
-	app.Action = func(ctx *cli.Context) error {
-		lvl, err := zapcore.ParseLevel(ctx.String("log.level"))
-		if err != nil {
-			return fmt.Errorf("failed to parse log.level: %w", err)
-		}
-
-		var logger *zap.Logger
-		if ctx.Bool("dev") {
-			logger, err = zap.NewDevelopment(zap.IncreaseLevel(lvl))
-		} else {
-			logger, err = zap.Config{
-				Level:       zap.NewAtomicLevelAt(lvl),
-				Development: false,
-				Sampling: &zap.SamplingConfig{
-					Initial:    100,
-					Thereafter: 100,
-				},
-				Encoding: "json",
-				EncoderConfig: zapcore.EncoderConfig{
-					TimeKey:        "ts",
-					LevelKey:       "level",
-					NameKey:        "logger",
-					CallerKey:      "caller",
-					FunctionKey:    zapcore.OmitKey,
-					MessageKey:     "msg",
-					StacktraceKey:  "stacktrace",
-					LineEnding:     zapcore.DefaultLineEnding,
-					EncodeLevel:    zapcore.LowercaseLevelEncoder,
-					EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
-					EncodeDuration: zapcore.SecondsDurationEncoder,
-					EncodeCaller:   zapcore.ShortCallerEncoder,
-				},
-				OutputPaths:      []string{"stderr"},
-				ErrorOutputPaths: []string{"stderr"},
-			}.Build()
-		}
-		if err != nil {
-			return err
-		}
-
-		// Graceful shutdowns
-		onShutdown := make(chan os.Signal, 1)
-		signal.Notify(onShutdown, syscall.SIGINT, syscall.SIGTERM)
-
-		collectors := metrics.NewPrometheusCollectors()
-
-		webhookHandler := webhook.NewWebhook(
-			ctx.String("gitlab.webhook-secret-token"),
-			collectors,
-			webhook.WithZapLogger(logger),
-		)
-
-		webhookSrv := &http.Server{
-			Addr:    ctx.String("web.listen-address"),
-			Handler: webhookHandler,
-		}
-
-		go func() {
-			logger.Info(fmt.Sprintf("webhook server listening on %s", ctx.String("web.listen-address")))
-			if err := webhookSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				logger.Fatal("")
-			}
-		}()
-
-		metricsSrv := &http.Server{
-			Addr: ctx.String("telemetry.listen-address"),
-			Handler: metrics.NewHandler(
-				ctx.String("telemetry.path"),
-				collectors,
-				metrics.WithZapLogger(logger),
-			),
-		}
-
-		go func() {
-			logger.Info(fmt.Sprintf("metrics server listening on %s", ctx.String("telemetry.listen-address")))
-			if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				logger.Fatal("")
-			}
-		}()
-
-		<-onShutdown
-		logger.Info("received exit signal, gracefully shutting down...")
-
-		httpServerContext, forceHTTPServerShutdown := context.WithTimeout(context.Background(), 5*time.Second)
-		defer forceHTTPServerShutdown()
-
-		if err := webhookSrv.Shutdown(httpServerContext); err != nil {
-			return err
-		}
-		if err := metricsSrv.Shutdown(httpServerContext); err != nil {
-			return err
-		}
-
-		return nil
-	}
+	app.Action = action
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Println(err)
+		fmt.Println(err) //nolint:forbidigo
 		os.Exit(2)
 	}
+}
+
+func action(ctx *cli.Context) error {
+	lvl, err := zapcore.ParseLevel(ctx.String("log.level"))
+	if err != nil {
+		return fmt.Errorf("failed to parse log.level: %w", err)
+	}
+
+	var logger *zap.Logger
+	if ctx.Bool("dev") {
+		logger, err = zap.NewDevelopment(zap.IncreaseLevel(lvl))
+	} else {
+		logger, err = zap.Config{
+			Level:       zap.NewAtomicLevelAt(lvl),
+			Development: false,
+			Sampling: &zap.SamplingConfig{
+				Initial:    100,
+				Thereafter: 100,
+			},
+			Encoding: "json",
+			EncoderConfig: zapcore.EncoderConfig{
+				TimeKey:        "ts",
+				LevelKey:       "level",
+				NameKey:        "logger",
+				CallerKey:      "caller",
+				FunctionKey:    zapcore.OmitKey,
+				MessageKey:     "msg",
+				StacktraceKey:  "stacktrace",
+				LineEnding:     zapcore.DefaultLineEnding,
+				EncodeLevel:    zapcore.LowercaseLevelEncoder,
+				EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
+				EncodeDuration: zapcore.SecondsDurationEncoder,
+				EncodeCaller:   zapcore.ShortCallerEncoder,
+			},
+			OutputPaths:      []string{"stderr"},
+			ErrorOutputPaths: []string{"stderr"},
+		}.Build()
+	}
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	// Graceful shutdowns
+	onShutdown := make(chan os.Signal, 1)
+	signal.Notify(onShutdown, syscall.SIGINT, syscall.SIGTERM)
+
+	timeoutDuration := 30 * time.Second
+	collectors := metrics.NewPrometheusCollectors()
+
+	webhookHandler := webhook.NewWebhook(
+		ctx.String("gitlab.webhook-secret-token"),
+		collectors,
+		webhook.WithZapLogger(logger),
+	)
+
+	webhookSrv := &http.Server{
+		Addr:              ctx.String("web.listen-address"),
+		ReadHeaderTimeout: timeoutDuration,
+		Handler:           webhookHandler,
+	}
+
+	go func() {
+		logger.Info(fmt.Sprintf("webhook server listening on %s", ctx.String("web.listen-address")))
+		if err := webhookSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("")
+		}
+	}()
+
+	metricsSrv := &http.Server{
+		Addr:              ctx.String("telemetry.listen-address"),
+		ReadHeaderTimeout: timeoutDuration,
+		Handler: metrics.NewHandler(
+			ctx.String("telemetry.path"),
+			collectors,
+			metrics.WithZapLogger(logger),
+		),
+	}
+
+	go func() {
+		logger.Info(fmt.Sprintf("metrics server listening on %s", ctx.String("telemetry.listen-address")))
+		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("")
+		}
+	}()
+
+	<-onShutdown
+	logger.Info("received exit signal, gracefully shutting down...")
+
+	httpServerContext, forceHTTPServerShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer forceHTTPServerShutdown()
+
+	if err := webhookSrv.Shutdown(httpServerContext); err != nil {
+		return err //nolint:wrapcheck
+	}
+	if err := metricsSrv.Shutdown(httpServerContext); err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
 }

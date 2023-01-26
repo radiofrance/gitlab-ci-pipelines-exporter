@@ -1,4 +1,4 @@
-package gitlab_events
+package gitlab
 
 // Kind defines the kind of ref that generated an event (branch, tag, merge_request, ...)
 type Kind string
@@ -11,7 +11,7 @@ const (
 
 func (k Kind) String() string { return string(k) }
 
-// Status defines a job or a pipeline status
+// Status defines a job or a pipeline status.
 type Status byte
 
 const (
@@ -29,10 +29,23 @@ const (
 	StatusScheduled
 )
 
-// Statuses list all possibles status for a job or a pipeline
-var Statuses = [...]string{"unknown", "created", "waiting_for_resource", "preparing", "pending", "running", "success", "failed", "canceled", "skipped", "manual", "scheduled"}
+// Statuses list all possibles status for a job or a pipeline.
+var Statuses = [...]string{
+	"unknown",
+	"created",
+	"waiting_for_resource",
+	"preparing",
+	"pending",
+	"running",
+	"success",
+	"failed",
+	"canceled",
+	"skipped",
+	"manual",
+	"scheduled",
+}
 
-// StatusFromString returns the status corresponding to the given string
+// StatusFromString returns the status corresponding to the given string.
 func StatusFromString(str string) Status {
 	for i, v := range Statuses {
 		if str == v {

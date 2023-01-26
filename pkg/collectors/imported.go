@@ -6,9 +6,9 @@ package collectors
 import "github.com/prometheus/client_golang/prometheus"
 
 var (
-	// topics and variables are removed (too much cardinality)
+	// topics and variables are removed (too much cardinality).
 	defaultLabels = []string{"project", "kind", "ref"}
-	// runner_description is removed (too much cardinality on job metrics)
+	// runner_description is removed (too much cardinality on job metrics).
 	jobLabels    = []string{"stage", "job_name"}
 	statusLabels = []string{"status"}
 )
@@ -68,7 +68,8 @@ func NewCollectorJobID() *prometheus.GaugeVec {
 	)
 }
 
-// NewCollectorJobQueuedDurationSeconds returns a new collector for the gitlab_ci_pipeline_job_queued_duration_seconds metric.
+// NewCollectorJobQueuedDurationSeconds returns a new collector for the
+// gitlab_ci_pipeline_job_queued_duration_seconds metric.
 func NewCollectorJobQueuedDurationSeconds() *prometheus.GaugeVec {
 	return prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -82,7 +83,7 @@ func NewCollectorJobQueuedDurationSeconds() *prometheus.GaugeVec {
 // NewCollectorJobRunCount returns a new collector for the gitlab_ci_pipeline_job_run_count metric.
 func NewCollectorJobRunCount() *prometheus.CounterVec {
 	return prometheus.NewCounterVec(
-		prometheus.CounterOpts{
+		prometheus.CounterOpts{ //nolint:promlinter
 			Name: "gitlab_ci_pipeline_job_run_count",
 			Help: "Number of executions of a job",
 		},
@@ -106,7 +107,7 @@ func NewCollectorJobTimestamp() *prometheus.GaugeVec {
 	return prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "gitlab_ci_pipeline_job_timestamp",
-			Help: "Creation date timestamp of the the most recent job",
+			Help: "Creation date timestamp of the most recent job",
 		},
 		append(defaultLabels, jobLabels...),
 	)
@@ -137,7 +138,7 @@ func NewCollectorTimestamp() *prometheus.GaugeVec {
 // NewCollectorRunCount returns a new collector for the gitlab_ci_pipeline_run_count metric.
 func NewCollectorRunCount() *prometheus.CounterVec {
 	return prometheus.NewCounterVec(
-		prometheus.CounterOpts{
+		prometheus.CounterOpts{ //nolint:promlinter
 			Name: "gitlab_ci_pipeline_run_count",
 			Help: "Number of executions of a pipeline",
 		},

@@ -10,6 +10,8 @@ import (
 )
 
 func Test_WriteError(t *testing.T) {
+	t.Parallel()
+
 	tcases := []struct {
 		err      any
 		expected string

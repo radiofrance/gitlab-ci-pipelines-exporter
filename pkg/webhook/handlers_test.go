@@ -1,14 +1,14 @@
-package webhook
+//nolint:lll
+package webhook //nolint: testpackage
 
 import (
 	"bytes"
 	"encoding/json"
 	"testing"
 
-	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -21,14 +21,15 @@ type PipelineHandlerTestSuite struct {
 }
 
 func (suite *PipelineHandlerTestSuite) SetupSuite() {
-	timestamp = func() float64 { return 0 }
 }
 
 func (suite *PipelineHandlerTestSuite) SetupTest() {
-	suite.webhook = &Webhook{
-		collectors: metrics.NewPrometheusCollectors(),
-		log:        zap.NewNop(),
-	}
+	suite.webhook = NewWebhook(
+		"",
+		metrics.NewPrometheusCollectors(),
+		WithZapLogger(zap.NewNop()),
+		WithTimestamp(func() int64 { return 0 }),
+	)
 }
 
 func (suite *PipelineHandlerTestSuite) TestSingleEvent() {
@@ -145,6 +146,8 @@ gitlab_ci_pipeline_status{kind="tag",project="radiofrance/gitlab-ci-pipelines-ex
 }
 
 func TestPipelineHandlerTestSuite(t *testing.T) {
+	t.Parallel()
+
 	suite.Run(t, new(PipelineHandlerTestSuite))
 }
 
@@ -154,14 +157,15 @@ type JobHandlerTestSuite struct {
 }
 
 func (suite *JobHandlerTestSuite) SetupSuite() {
-	timestamp = func() float64 { return 0 }
 }
 
 func (suite *JobHandlerTestSuite) SetupTest() {
-	suite.webhook = &Webhook{
-		collectors: metrics.NewPrometheusCollectors(),
-		log:        zap.NewNop(),
-	}
+	suite.webhook = NewWebhook(
+		"",
+		metrics.NewPrometheusCollectors(),
+		WithZapLogger(zap.NewNop()),
+		WithTimestamp(func() int64 { return 0 }),
+	)
 }
 
 func (suite *JobHandlerTestSuite) TestSingleEvent() {
@@ -177,7 +181,7 @@ func (suite *JobHandlerTestSuite) TestSingleEvent() {
 gitlab_ci_pipeline_job_id{job_name="golang-ci-lint",kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",stage="quality"} 0
 `,
 			suite.webhook.collectors.JobTimestamp: `
-# HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the the most recent job
+# HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the most recent job
 # TYPE gitlab_ci_pipeline_job_timestamp gauge
 gitlab_ci_pipeline_job_timestamp{job_name="golang-ci-lint",kind="merge_request",project="radiofrance/gitlab-ci-pipelines-exporter",ref="9832",stage="quality"} 0
 `,
@@ -223,7 +227,7 @@ gitlab_ci_pipeline_job_id{job_name="build-image",kind="branch",project="radiofra
 gitlab_ci_pipeline_job_id{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 4234
 `,
 			suite.webhook.collectors.JobTimestamp: `
-# HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the the most recent job
+# HELP gitlab_ci_pipeline_job_timestamp Creation date timestamp of the most recent job
 # TYPE gitlab_ci_pipeline_job_timestamp gauge
 gitlab_ci_pipeline_job_timestamp{job_name="build-image",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="build"} 0
 gitlab_ci_pipeline_job_timestamp{job_name="golang-ci-lint",kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master",stage="quality"} 0
@@ -274,10 +278,14 @@ gitlab_ci_pipeline_job_status{job_name="golang-ci-lint",kind="branch",project="r
 }
 
 func TestJobHandlerTestSuite(t *testing.T) {
+	t.Parallel()
+
 	suite.Run(t, new(JobHandlerTestSuite))
 }
 
 func genericTestWebhookHandler[T any](t *testing.T, handler func(T), events []string, expected map[prometheus.Collector]string) {
+	t.Helper()
+
 	for _, str := range events {
 		var event T
 
