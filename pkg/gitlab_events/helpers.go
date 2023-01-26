@@ -1,110 +1,45 @@
 package gitlab_events
 
-import (
-	"encoding/json"
-	"strings"
-)
-
-// refKind defined what kind of ref as generated an event (branch, tag, merge_request, ...)
-type refKind string
+// Kind defines the kind of ref that generated an event (branch, tag, merge_request, ...)
+type Kind string
 
 const (
-	BranchKind       refKind = "branch"
-	MergeRequestKind refKind = "merge_request"
-	TagKind          refKind = "tag"
+	KindBranch       Kind = "branch"
+	KindMergeRequest Kind = "merge_request"
+	KindTag          Kind = "tag"
 )
 
-func (r refKind) String() string { return string(r) }
+func (k Kind) String() string { return string(k) }
 
-// status defined a job or a pipeline status
-type status byte
+// Status defines a job or a pipeline status
+type Status byte
 
 const (
-	Unknown status = iota
-	Created
-	WaitingForResource
-	Preparing
-	Pending
-	Running
-	Success
-	Failed
-	Canceled
-	Skipped
-	Manual
-	Scheduled
+	StatusUnknown Status = iota
+	StatusCreated
+	StatusWaitingForResource
+	StatusPreparing
+	StatusPending
+	StatusRunning
+	StatusSuccess
+	StatusFailed
+	StatusCanceled
+	StatusSkipped
+	StatusManual
+	StatusScheduled
 )
 
 // Statuses list all possibles status for a job or a pipeline
 var Statuses = [...]string{"unknown", "created", "waiting_for_resource", "preparing", "pending", "running", "success", "failed", "canceled", "skipped", "manual", "scheduled"}
 
 // StatusFromString returns the status corresponding to the given string
-func StatusFromString(str string) status {
+func StatusFromString(str string) Status {
 	for i, v := range Statuses {
 		if str == v {
-			return status(i)
+			return Status(i)
 		}
 	}
-	return Unknown
+	return StatusUnknown
 }
 
-func (s status) String() string { return Statuses[s] }
-
-func (s status) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + s.String() + `"`), nil
-}
-
-func (s *status) UnmarshalJSON(bytes []byte) error {
-	str := strings.ReplaceAll(string(bytes), `"`, "")
-
-	for i, v := range Statuses {
-		if str == v {
-			*s = status(i)
-			break
-		}
-	}
-	return nil
-}
-
-// Option represents an optional value; every Option is either
-// `Some` and contains a value, or `None`, and does not.
-// NOTE: this is only used as helper during JSON unmarshalling.
-type Option[T any] []T
-
-// Some makes an Option type containing the actual value.
-func Some[T any](v T) Option[T] { return Option[T]{v} }
-
-// None makes an Option type that doesn't have a value.
-func None[T any]() Option[T] { return nil }
-
-// IsNone returns whether the Option doesn't have a value or not.
-func (o Option[T]) IsNone() bool { return len(o) == 0 }
-
-// IsSome returns whether the Option has a value or not.
-func (o Option[T]) IsSome() bool { return !o.IsNone() }
-
-// Unwrap extracts the contained value in an Option[T] when it is the Some variant.
-func (o Option[T]) Unwrap() (v T) {
-	if o.IsNone() {
-		return v
-	}
-	return o[0]
-}
-
-func (o Option[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(o.Unwrap())
-}
-
-func (o *Option[T]) UnmarshalJSON(bytes []byte) error {
-	if string(bytes) == "null" {
-		return nil
-	}
-
-	var any T
-	err := json.Unmarshal(bytes, &any)
-	if err != nil {
-		return err
-	}
-
-	*o = Some(any)
-	return nil
-}
+func (s Status) String() string { return Statuses[s] }

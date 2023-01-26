@@ -79,10 +79,10 @@ func (suite *PipelineHandlerTestSuite) TestMultipleEvents() {
 		[]string{
 			`{"object_attributes":{"id":4223,"ref":"master","status":"created"},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
 			`{"object_attributes":{"id":4224,"ref":"master","status":"pending"},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
-			`{"object_attributes":{"id":4225,"ref":"master","status":"running","queued_duration":1.223745},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
-			`{"object_attributes":{"id":4226,"ref":"master","status":"failed","duration":0.088020544,"queued_duration":1.223745},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
-			`{"object_attributes":{"id":4227,"ref":"master","status":"running","queued_duration":2.343087599},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
-			`{"object_attributes":{"id":4228,"ref":"master","status":"success","duration":91.140114,"queued_duration":2.343087599},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
+			`{"object_attributes":{"id":4225,"ref":"master","status":"running","queued_duration":1},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
+			`{"object_attributes":{"id":4226,"ref":"master","status":"failed","duration":1,"queued_duration":1},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
+			`{"object_attributes":{"id":4227,"ref":"master","status":"running","queued_duration":2},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
+			`{"object_attributes":{"id":4228,"ref":"master","status":"success","duration":91,"queued_duration":2},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
 			`{"object_attributes":{"id":4229,"ref":"v1.0.0","tag":true,"status":"created"},"project":{"path_with_namespace": "radiofrance/gitlab-ci-pipelines-exporter"}}`,
 		},
 
@@ -102,12 +102,12 @@ gitlab_ci_pipeline_timestamp{kind="tag",project="radiofrance/gitlab-ci-pipelines
 			suite.webhook.collectors.QueuedDurationSeconds: `
 # HELP gitlab_ci_pipeline_queued_duration_seconds Duration in seconds the most recent pipeline has been queued before starting
 # TYPE gitlab_ci_pipeline_queued_duration_seconds gauge
-gitlab_ci_pipeline_queued_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 2.343087599
+gitlab_ci_pipeline_queued_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 2
 `,
 			suite.webhook.collectors.DurationSeconds: `
 # HELP gitlab_ci_pipeline_duration_seconds Duration in seconds of the most recent pipeline
 # TYPE gitlab_ci_pipeline_duration_seconds gauge
-gitlab_ci_pipeline_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 91.140114
+gitlab_ci_pipeline_duration_seconds{kind="branch",project="radiofrance/gitlab-ci-pipelines-exporter",ref="master"} 91
 `,
 			suite.webhook.collectors.RunCount: `
 # HELP gitlab_ci_pipeline_run_count Number of executions of a pipeline
@@ -277,15 +277,14 @@ func TestJobHandlerTestSuite(t *testing.T) {
 	suite.Run(t, new(JobHandlerTestSuite))
 }
 
-func genericTestWebhookHandler[T any](t *testing.T, handler func(T) error, events []string, expected map[prometheus.Collector]string) {
+func genericTestWebhookHandler[T any](t *testing.T, handler func(T), events []string, expected map[prometheus.Collector]string) {
 	for _, str := range events {
 		var event T
 
 		err := json.Unmarshal([]byte(str), &event)
 		require.NoError(t, err)
 
-		err = handler(event)
-		assert.NoError(t, err)
+		handler(event)
 	}
 
 	for collector, expect := range expected {
