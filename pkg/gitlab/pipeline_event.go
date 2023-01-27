@@ -1,4 +1,4 @@
-package gitlab_events
+package gitlab
 
 import (
 	"strconv"

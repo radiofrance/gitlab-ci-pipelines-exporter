@@ -1,6 +1,7 @@
 package webhook_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,17 +11,19 @@ import (
 )
 
 func TestNewGitlabSecretTokenMiddleware(t *testing.T) {
-	next := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) { writer.WriteHeader(http.StatusOK) })
-	mw := webhook.NewGitlabSecretTokenMiddleware("token")
+	t.Parallel()
 
-	req, _ := http.NewRequest(http.MethodPost, "https://:::0", nil)
-	w := httptest.NewRecorder()
-	mw.ServeHTTP(w, req, next)
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, `{"error":"invalid Gitlab webhook secret token"}`, w.Body.String())
+	next := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) { writer.WriteHeader(http.StatusOK) })
+	middleware := webhook.NewGitlabSecretTokenMiddleware("token")
+
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://:::0", nil)
+	recorder := httptest.NewRecorder()
+	middleware.ServeHTTP(recorder, req, next)
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	assert.Equal(t, `{"error":"invalid Gitlab webhook secret token"}`, recorder.Body.String())
 
 	req.Header.Add("X-Gitlab-Token", "token")
-	w = httptest.NewRecorder()
-	mw.ServeHTTP(w, req, next)
-	assert.Equal(t, http.StatusOK, w.Code)
+	recorder = httptest.NewRecorder()
+	middleware.ServeHTTP(recorder, req, next)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }

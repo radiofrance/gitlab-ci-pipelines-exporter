@@ -5,19 +5,24 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
-	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/gitlab_events"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/gitlab"
 	gcpehttp "github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/http"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/urfave/negroni"
 	"go.uber.org/zap"
 )
 
+// TimestampFunc returns the timestamp that should be used by the timestamp* collector.
+type TimestampFunc func() int64
+
 type (
 	Webhook struct {
 		collectors *metrics.PrometheusCollectors
 		mux        *http.ServeMux
 		log        *zap.Logger
+		timestamp  TimestampFunc
 	}
 )
 
@@ -27,6 +32,9 @@ func NewWebhook(secretToken string, collectors *metrics.PrometheusCollectors, op
 		collectors: collectors,
 		mux:        http.NewServeMux(),
 		log:        zap.Must(zap.NewProduction()),
+		timestamp: func() int64 {
+			return time.Now().Unix()
+		},
 	}
 
 	for _, opt := range opts {
@@ -34,21 +42,21 @@ func NewWebhook(secretToken string, collectors *metrics.PrometheusCollectors, op
 	}
 
 	webhook.mux.Handle("/healthz", http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
-		writer.WriteHeader(200)
+		writer.WriteHeader(http.StatusOK)
 	}))
 
 	root := negroni.New(gcpehttp.NewRecoverMiddleware(webhook.log), gcpehttp.NewZapMiddleware(webhook.log))
-	gitlab := root.With(NewGitlabSecretTokenMiddleware(secretToken))
-	webhook.mux.Handle("/hooks", gitlab.With(negroni.WrapFunc(webhook.handleHook)))
+	gitlabAuth := root.With(NewGitlabSecretTokenMiddleware(secretToken))
+	webhook.mux.Handle("/hooks", gitlabAuth.With(negroni.WrapFunc(webhook.handleHook)))
 
 	return webhook
 }
 
-func (webhook Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	webhook.mux.ServeHTTP(w, r)
+func (wh Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	wh.mux.ServeHTTP(w, r)
 }
 
-func (webhook Webhook) handleHook(writer http.ResponseWriter, request *http.Request) {
+func (wh Webhook) handleHook(writer http.ResponseWriter, request *http.Request) {
 	// NOTE: reject all non-POST requests
 	if request.Method != http.MethodPost {
 		writer.WriteHeader(http.StatusMethodNotAllowed)
@@ -76,17 +84,17 @@ func (webhook Webhook) handleHook(writer http.ResponseWriter, request *http.Requ
 
 	switch payload.ObjectKind {
 	case "pipeline":
-		event := gitlab_events.PipelineEvent{}
+		event := gitlab.PipelineEvent{}
 		if err := unmarshallEvent(body, &event, writer); err != nil {
 			return
 		}
-		webhook.handlePipelineEvent(event)
+		wh.handlePipelineEvent(event)
 	case "build":
-		event := gitlab_events.JobEvent{}
+		event := gitlab.JobEvent{}
 		if err := unmarshallEvent(body, &event, writer); err != nil {
 			return
 		}
-		webhook.handleJobEvent(event)
+		wh.handleJobEvent(event)
 	default:
 		writer.WriteHeader(http.StatusNotImplemented)
 		return
@@ -103,7 +111,8 @@ func unmarshallEvent(data []byte, obj any, writer http.ResponseWriter) error {
 	if err != nil {
 		// NOTE: we return this status code as recommended by Gitlab
 		writer.WriteHeader(http.StatusBadRequest)
-		gcpehttp.WriteError(writer, fmt.Errorf("failed to unmarshall json into %T", obj))
+		err = fmt.Errorf("failed to unmarshall json into %T", obj)
+		gcpehttp.WriteError(writer, err)
 	}
 
 	return err

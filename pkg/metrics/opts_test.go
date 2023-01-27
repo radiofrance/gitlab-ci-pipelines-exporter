@@ -1,4 +1,4 @@
-package metrics
+package metrics //nolint:testpackage
 
 import (
 	"testing"
@@ -8,6 +8,8 @@ import (
 )
 
 func TestWithZapLogger(t *testing.T) {
+	t.Parallel()
+
 	logger := zap.NewNop()
 	handler := NewHandler("/metrics", NewPrometheusCollectors(), WithZapLogger(logger))
 	assert.Equal(t, logger, handler.log)

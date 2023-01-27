@@ -1,6 +1,7 @@
 package metrics_test
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,12 +30,18 @@ func (c fakeCollectors) MustRegister() {
 }
 
 func Test_Handler_ServeHTTP(t *testing.T) {
+	t.Parallel()
+
 	collectors := &fakeCollectors{}
 	handler := metrics.NewHandler("/metrics", collectors)
 	server := httptest.NewServer(handler)
 
-	response, err := server.Client().Get(fmt.Sprintf("%s/metrics", server.URL))
+	url := fmt.Sprintf("%s/metrics", server.URL)
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	require.NoError(t, err)
+	response, err := server.Client().Do(request)
+	require.NoError(t, err)
+	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	require.NoError(t, err)

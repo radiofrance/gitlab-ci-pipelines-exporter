@@ -1,4 +1,4 @@
-package webhook
+package webhook_test
 
 import (
 	"bytes"
@@ -10,13 +10,16 @@ import (
 	"testing"
 
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
+	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/webhook"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_Webhook_ServeHTTP(t *testing.T) {
+	t.Parallel()
+
 	collectors := metrics.NewPrometheusCollectors()
-	webhook := NewWebhook("secret_token", collectors)
+	webhook := webhook.NewWebhook("secret_token", collectors)
 	server := httptest.NewServer(webhook)
 
 	authenticatedHeaders := http.Header{
@@ -69,7 +72,7 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			headers:            authenticatedHeaders,
 			event:              `true`,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"json: cannot unmarshal bool into Go value of type struct { ObjectKind string \"json:\\\"object_kind\\\"\" }"}`,
+			expectedBody:       `{"error":"json: cannot unmarshal bool into Go value of type struct { ObjectKind string \"json:\\\"object_kind\\\"\" }"}`, //nolint:lll
 		},
 		"Webhooks route handles invalid json payload": {
 			method:             http.MethodPost,
@@ -85,7 +88,7 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			headers:            authenticatedHeaders,
 			event:              `{"object_kind":"pipeline","object_attributes":["invalid"]}`,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"failed to unmarshall json into *gitlab_events.PipelineEvent"}`,
+			expectedBody:       `{"error":"failed to unmarshall json into *gitlab.PipelineEvent"}`,
 		},
 		"Webhooks route handles invalid job event": {
 			method:             http.MethodPost,
@@ -93,7 +96,7 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			headers:            authenticatedHeaders,
 			event:              `{"object_kind":"build","ref":["invalid"]}`,
 			expectedStatusCode: http.StatusBadRequest,
-			expectedBody:       `{"error":"failed to unmarshall json into *gitlab_events.JobEvent"}`,
+			expectedBody:       `{"error":"failed to unmarshall json into *gitlab.JobEvent"}`,
 		},
 		"Webhooks route handles pipeline event": {
 			method:             http.MethodPost,
@@ -112,7 +115,10 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 	}
 
 	for name, tcase := range tcases {
+		tcase := tcase
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			requestURL, err := url.Parse(fmt.Sprintf("%s%s", server.URL, tcase.uri))
 			require.NoError(t, err)
 
@@ -122,6 +128,7 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			request.Header = tcase.headers
 			response, err := server.Client().Do(request)
 			require.NoError(t, err)
+			defer response.Body.Close()
 
 			body, err := io.ReadAll(response.Body)
 			require.NoError(t, err)

@@ -7,11 +7,11 @@ import (
 )
 
 func WriteError(writer io.Writer, err any) {
-	_, _ = writer.Write(errToJson(err))
+	_, _ = writer.Write(errToJSON(err))
 }
 
-// errToJson convert anything into json object representing an error.
-func errToJson(err any) []byte {
-	bytes, _ := json.Marshal(map[string]string{"error": fmt.Sprintf("%s", err)})
+// errToJSON converts anything into json object representing an error.
+func errToJSON(err any) []byte {
+	bytes, _ := json.Marshal(map[string]string{"error": fmt.Sprintf("%s", err)}) //nolint:errchkjson
 	return bytes
 }
