@@ -55,7 +55,7 @@
         "^\\.github/workflows/.*\\.ya?ml"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?))(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s.*version: (?<currentValue>.*)\\s"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s.*version: (?<currentValue>.*)\\s"
       ],
       "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
     }
