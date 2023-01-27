@@ -35,8 +35,8 @@
     {
       "description": "Group golang version bumps",
       "matchPackageNames": [
-        "go"
-        "golang/go",
+        "go",
+        "golang/go"
       ],
       "groupName": "golang"
     },
