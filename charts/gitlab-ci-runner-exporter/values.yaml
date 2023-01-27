@@ -133,7 +133,8 @@ containerSecurityContext:
 ## containerPorts -- Gitlab CI pipelines exporter container port
 containerPorts:
   ## containerPorts.http -- Main exporter port, that receive webhook requests and export metrics
-  http: 9252
+  http: 8080
+  metrics: 9252
 
 ## resources -- Gitlab CI pipelines exporter pods' resource requests and limits
 ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -190,11 +191,15 @@ service:
   ## service.type -- Gitlab CI pipelines exporter Service type
   type: ClusterIP
   ports:
-    ## service.ports.http -- Gitlab CI pipelines exporter service HTTP port
-    http: 80
+    ## service.ports.http -- HTTP port for incoming webhooks
+    http: 8080
+    ## service.ports.metrics -- Metrics port to be scraped by prometheus
+    metrics: 9252
   nodePorts:
     ## service.nodePorts.http -- node port for HTTP
     http: ""
+    ## service.nodePorts.http -- node port for metrics
+    metrics: ""
   ## service.clusterIP -- Gitlab CI pipelines exporter service Cluster IP
   ## e.g.:
   ## clusterIP: None
@@ -229,7 +234,7 @@ ingress:
   enabled: false
 
   ## ingress.pathType -- ingress path type
-  pathType: ImplementationSpecific
+  pathType: Prefix
   ## ingress.ingressClassName -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
   ## IngressClassName is used to reference the IngressClass that should be used to implement this Ingress.
   ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
