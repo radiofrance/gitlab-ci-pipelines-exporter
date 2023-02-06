@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.19.5 as builder
+FROM docker.io/golang:1.20.0 as builder
 ARG VERSION=devel
 
 WORKDIR /build
