@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/stretchr/testify v1.8.2
-	github.com/urfave/cli/v2 v2.24.4
+	github.com/urfave/cli/v2 v2.25.0
 	github.com/urfave/negroni v1.0.0
 	github.com/xanzy/go-gitlab v0.80.2
 	go.uber.org/zap v1.24.0
