@@ -20,7 +20,7 @@ jobs:
         with:
           go-version: '1.19'
           check-latest: true
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
 
       - name: Run golang tests
         run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [go-test]
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
       - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: golang-coverage-report
