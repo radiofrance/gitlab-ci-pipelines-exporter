@@ -7,7 +7,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.25.1
 	github.com/urfave/negroni v1.0.0
-	github.com/xanzy/go-gitlab v0.81.0
+	github.com/xanzy/go-gitlab v0.82.0
 	go.uber.org/zap v1.24.0
 )
 
@@ -34,6 +34,6 @@ require (
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.29.0 // indirect
+	google.golang.org/protobuf v1.29.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
