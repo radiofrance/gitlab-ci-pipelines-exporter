@@ -24,7 +24,7 @@ jobs:
           directory: charts/gitlab-ci-runner-exporter
           framework: helm
           skip_check: CKV_K8S_11,CKV_K8S_15,CKV_K8S_21,CKV_K8S_35,CKV_K8S_43
-      - uses: github/codeql-action/upload-sarif@bb28e7e59e2ad6c1e5400e671795b2fa1b2fca6f # tag=codeql-bundle-20221211
+      - uses: github/codeql-action/upload-sarif@d2f6dfd52d4ad3c64cdea0291e07a32fa007097c # tag=codeql-bundle-20221211
         if: always()
         with:
           category: checkov-helm
