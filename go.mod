@@ -3,7 +3,7 @@ module github.com/radiofrance/gitlab-ci-pipelines-exporter
 go 1.20
 
 require (
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.25.3
 	github.com/urfave/negroni v1.0.0
