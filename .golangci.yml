@@ -6,6 +6,7 @@ linters:
   enable-all: true
   disable:
     - exhaustruct       # Find structs that have uninitialized fields. => We want to rely on default field initialization
+    - depguard          # We do not have particular restrictions on which packages should be allowed or not
     - funlen            # checks for long functions => legit, but we prefer to use sonarqube and be non-blocking
     - gochecknoglobals  # Check that no globals are present in Go code. => We want to use global variables in some situations
     - goerr113          # check the errors handling expressions => Is a little extreme
