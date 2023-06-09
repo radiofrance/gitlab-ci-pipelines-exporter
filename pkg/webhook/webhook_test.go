@@ -122,7 +122,7 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			requestURL, err := url.Parse(fmt.Sprintf("%s%s", server.URL, tcase.uri))
 			require.NoError(t, err)
 
-			request := httptest.NewRequest(tcase.method, server.URL, bytes.NewBuffer([]byte(tcase.event)))
+			request := httptest.NewRequest(tcase.method, server.URL, bytes.NewBuffer([]byte(tcase.event))) //nolint:mirror
 			request.RequestURI = ""
 			request.URL = requestURL
 			request.Header = tcase.headers

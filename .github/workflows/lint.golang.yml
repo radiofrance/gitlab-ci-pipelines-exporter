@@ -23,4 +23,4 @@ jobs:
       - uses: golangci/golangci-lint-action@5f1fec7010f6ae3b84ea4f7b2129beb8639b564f # v3.5.0
         with:
           # renovate: datasource=github-releases depName=golangci/golangci-lint
-          version: v1.52.2
+          version: v1.53.2
