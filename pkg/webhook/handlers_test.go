@@ -1,5 +1,5 @@
 //nolint:lll
-package webhook //nolint: testpackage
+package webhook //nolint:testpackage
 
 import (
 	"bytes"
@@ -296,7 +296,7 @@ func genericTestWebhookHandler[T any](t *testing.T, handler func(T), events []st
 	}
 
 	for collector, expect := range expected {
-		err := testutil.CollectAndCompare(collector, bytes.NewBuffer([]byte(expect)))
+		err := testutil.CollectAndCompare(collector, bytes.NewBuffer([]byte(expect))) //nolint:mirror
 		assert.NoError(t, err)
 	}
 }
