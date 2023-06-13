@@ -21,7 +21,6 @@
     ":prHourlyLimitNone",
     ":prImmediately",
     ":semanticCommitScope(deps)",
-    ":semanticPrefixFixDepsChoreOthers",
     ":separateMultipleMajorReleases",
     "helpers:pinGitHubActionDigests",
     "regexManagers:dockerfileVersions"
@@ -33,11 +32,13 @@
       "extends": ["schedule:monthly"]
     },
     {
-      "description": "Group golang version bumps",
-      "matchPackageNames": [
-        "go",
-        "golang/go"
-      ],
+      "description": "Group golang version bumps by datasource",
+      "datasources": ["golang-version"],
+      "groupName": "golang"
+    },
+    {
+      "description": "Group golang version bumps by package",
+      "matchPackageNames": ["go", "golang", "golang/go"],
       "groupName": "golang"
     },
     {
@@ -55,7 +56,7 @@
         "^\\.github/workflows/.*\\.ya?ml"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s.*version: (?<currentValue>.*)\\s"
+        "# renovate: datasource=(?<datasource>.*?)(?: depName=(?<depName>.*?))?(?: versioning=(?<versioning>.*?))?\\s.*version: ['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s"
       ],
       "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
     }
