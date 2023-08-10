@@ -9,7 +9,7 @@ require (
 	github.com/urfave/negroni v1.0.0
 	github.com/urfave/negroni/v2 v2.0.2
 	github.com/xanzy/go-gitlab v0.90.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/zap v1.25.0
 )
 
 require (
@@ -29,7 +29,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
