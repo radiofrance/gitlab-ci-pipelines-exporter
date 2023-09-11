@@ -8,7 +8,7 @@ require (
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/urfave/negroni v1.0.0
 	github.com/urfave/negroni/v2 v2.0.2
-	github.com/xanzy/go-gitlab v0.90.0
+	github.com/xanzy/go-gitlab v0.91.1
 	go.uber.org/zap v1.25.0
 )
 
