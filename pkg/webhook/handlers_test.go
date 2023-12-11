@@ -9,7 +9,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -297,6 +296,6 @@ func genericTestWebhookHandler[T any](t *testing.T, handler func(T), events []st
 
 	for collector, expect := range expected {
 		err := testutil.CollectAndCompare(collector, bytes.NewBuffer([]byte(expect))) //nolint:mirror
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 }
