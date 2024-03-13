@@ -65,6 +65,8 @@ spec:
               value: :{{ .Values.containerPorts.metrics }}
             - name: LOG_LEVEL
               value: {{ .Values.gcpe.logLevel }}
+
+            {{ toYaml .Values.envVariables |  nindent 6 }}
           ports:
             - name: http
               containerPort: {{ .Values.containerPorts.http }}
