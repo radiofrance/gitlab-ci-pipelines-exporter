@@ -5,24 +5,25 @@ run:
 linters:
   enable-all: true
   disable:
-    - exhaustruct       # Find structs that have uninitialized fields. => We want to rely on default field initialization
+    - deadcode          # Disable because they are deprecated and throw warning in logs
     - depguard          # We do not have particular restrictions on which packages should be allowed or not
+    - dupl              # Disable because they are deprecated and throw warning in logs
+    - exhaustive        # We don't want to force struct exhaustive
+    - exhaustivestruct  # Disable because they are deprecated and throw warning in logs
+    - exhaustruct       # Find structs that have uninitialized fields. => We want to rely on default field initialization
     - funlen            # checks for long functions => legit, but we prefer to use sonarqube and be non-blocking
     - gochecknoglobals  # Check that no globals are present in Go code. => We want to use global variables in some situations
     - goerr113          # check the errors handling expressions => Is a little extreme
-    - gomnd             # Magic number detector for Go. => We don't care
-    - nlreturn          # Checks for a new line before return and branch statements. => We don't care
-    - tagliatelle       # A linter that handles struct tags. => Too many false positive errors
-    - wsl               # Whitespace Linter - Forces you to use empty lines! => We don't care
-    - exhaustive        # We don't want to force struct exhaustive
-    - maligned          # Disable because they are deprecated and throw warning in logs
-    - interfacer        # Disable because they are deprecated and throw warning in logs
-    - scopelint         # Disable because they are deprecated and throw warning in logs
     - golint            # Disable because they are deprecated and throw warning in logs
-    - exhaustivestruct  # Disable because they are deprecated and throw warning in logs
+    - gomnd             # Magic number detector for Go. => We don't care
     - ifshort           # Disable because they are deprecated and throw warning in logs
-    - dupl              # Disable because they are deprecated and throw warning in logs
-    - deadcode          # Disable because they are deprecated and throw warning in logs
-    - varcheck          # Disable because they are deprecated and throw warning in logs
-    - structcheck       # Disable because they are deprecated and throw warning in logs
+    - interfacer        # Disable because they are deprecated and throw warning in logs
+    - maligned          # Disable because they are deprecated and throw warning in logs
+    - nlreturn          # Checks for a new line before return and branch statements. => We don't care
     - nosnakecase       # Disable because they are deprecated and throw warning in logs
+    - perfsprint        # We prefer lisibility over performance
+    - scopelint         # Disable because they are deprecated and throw warning in logs
+    - structcheck       # Disable because they are deprecated and throw warning in logs
+    - tagliatelle       # A linter that handles struct tags. => Too many false positive errors
+    - varcheck          # Disable because they are deprecated and throw warning in logs
+    - wsl               # Whitespace Linter - Forces you to use empty lines! => We don't care

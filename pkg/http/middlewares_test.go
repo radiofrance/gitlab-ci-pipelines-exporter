@@ -97,7 +97,7 @@ func TestNewRecoverMiddleware(t *testing.T) {
 		zap.InfoLevel,
 	))
 
-	next := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) { panic("STONK !!!") })
+	next := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) { panic("STONK !!!") })
 	mw := gcpehttp.NewRecoverMiddleware(logger)
 
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://:::0", nil)
