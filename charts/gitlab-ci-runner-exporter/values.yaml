@@ -313,3 +313,13 @@ serviceAccount:
   # serviceAccount.name -- the name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+envVariables:
+  - name: GOMEMLIMIT
+    valueFrom:
+      resourceFieldRef:
+        resource: limits.memory
+  - name: GOMAXPROCS
+    valueFrom:
+      resourceFieldRef:
+        resource: limits.cpu
