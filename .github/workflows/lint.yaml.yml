@@ -10,7 +10,7 @@ jobs:
     name: YAML lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # tag=v3.1.1
         with:
