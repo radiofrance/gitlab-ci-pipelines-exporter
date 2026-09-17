@@ -37,6 +37,14 @@ gcpe:
   #    key: token
   #    name: gitlab-secret-token
   webhookSecretRef: {}
+  ## gcpe.envFile -- Load environment variables (e.g. GITLAB_WEBHOOK_SECRET_TOKEN) from a `.env` file
+  ## mounted from an existing Secret, instead of webhookSecret / webhookSecretRef.
+  ## When set, webhookSecret / webhookSecretRef are ignored and no Secret is created by the chart.
+  ## e.g:
+  #  envFile:
+  #    secretName: gitlab-ci-pipelines-exporter-env
+  #    secretKey: .env
+  envFile: {}
 
 ## image -- Gitlab CI pipelines exporter image
 image:

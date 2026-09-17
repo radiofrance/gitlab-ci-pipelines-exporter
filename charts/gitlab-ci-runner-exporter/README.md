@@ -111,6 +111,16 @@ GLOBAL OPTIONS:
    --version, -v                        print the version (default: false)
 ```
 
+All global options can also be set through the environment variables listed above. Additionally, an
+`ENV_FILE` environment variable can point to a [`.env`](https://github.com/joho/godotenv) file; its
+variables are loaded into the process environment before flags are parsed, so it can be used as an
+alternative to setting `GITLAB_WEBHOOK_SECRET_TOKEN` (or any other option) directly. Variables already
+present in the environment take precedence over the file.
+
+In the Helm chart, set `gcpe.envFile.secretName` (and optionally `gcpe.envFile.secretKey`, default `.env`)
+to mount an existing Secret as a `.env` file and wire `ENV_FILE` automatically, instead of
+`gcpe.webhookSecret` / `gcpe.webhookSecretRef`.
+
 ## Exported metrics
 
 | Metric name                                      | Description                                                                  | Labels                                                                        |

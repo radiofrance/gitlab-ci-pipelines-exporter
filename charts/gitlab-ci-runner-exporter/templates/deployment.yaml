@@ -50,6 +50,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           securityContext: {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
           env:
+            {{- if .Values.gcpe.envFile.secretName }}
+            - name: ENV_FILE
+              value: /etc/gitlab-ci-pipelines-exporter/env/{{ .Values.gcpe.envFile.secretKey | default ".env" }}
+            {{- else }}
             - name: GITLAB_WEBHOOK_SECRET_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -59,12 +63,19 @@ spec:
                   {{- else }}
                   {{- .Values.gcpe.webhookSecretRef | toYaml | nindent 18 }}
                   {{- end }}
+            {{- end }}
             - name: WEB_LISTEN_ADDRESS
               value: :{{ .Values.containerPorts.http }}
             - name: TELEMETRY_LISTEN_ADDRESS
               value: :{{ .Values.containerPorts.metrics }}
             - name: LOG_LEVEL
               value: {{ .Values.gcpe.logLevel }}
+          {{- if .Values.gcpe.envFile.secretName }}
+          volumeMounts:
+            - name: env-file
+              mountPath: /etc/gitlab-ci-pipelines-exporter/env
+              readOnly: true
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.containerPorts.http }}
@@ -87,6 +98,12 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           resources: {{- .Values.resources | toYaml | nindent 12 }}
+      {{- if .Values.gcpe.envFile.secretName }}
+      volumes:
+        - name: env-file
+          secret:
+            secretName: {{ .Values.gcpe.envFile.secretName }}
+      {{- end }}
       {{- if .Values.extraPodSpec }}
       {{ .Values.extraPodSpec | toYaml | nindent 6 }}
       {{- end }}

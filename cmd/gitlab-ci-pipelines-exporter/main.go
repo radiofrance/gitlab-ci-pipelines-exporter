@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/metrics"
 	"github.com/radiofrance/gitlab-ci-pipelines-exporter/pkg/webhook"
 	"github.com/urfave/cli/v2"
@@ -19,6 +20,16 @@ import (
 var version = "devel"
 
 func main() {
+	// Loaded before the CLI parses its flags, so that variables it defines
+	// are picked up by the existing EnvVars bindings below (e.g. GITLAB_WEBHOOK_SECRET_TOKEN).
+	// Variables already present in the process environment take precedence over the file.
+	if envFile := os.Getenv("ENV_FILE"); envFile != "" {
+		if err := godotenv.Load(envFile); err != nil {
+			fmt.Printf("unable to load env file %q: %s\n", envFile, err) //nolint:forbidigo
+			os.Exit(2)
+		}
+	}
+
 	app := cli.NewApp()
 	app.Name = "gitlab-ci-pipelines-exporter"
 	app.Usage = "Export metrics about GitLab CI pipelines statuses"
