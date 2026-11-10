@@ -17,6 +17,7 @@ import (
 
 type PipelineHandlerTestSuite struct {
 	suite.Suite
+
 	webhook *Webhook
 }
 
@@ -153,6 +154,7 @@ func TestPipelineHandlerTestSuite(t *testing.T) {
 
 type JobHandlerTestSuite struct {
 	suite.Suite
+
 	webhook *Webhook
 }
 

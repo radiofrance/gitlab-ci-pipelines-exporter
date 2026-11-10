@@ -2,7 +2,6 @@ package http_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -41,7 +40,7 @@ func TestNewZapMiddleware(t *testing.T) {
 	next := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) { writer.WriteHeader(http.StatusOK) })
 	middleware := gcpehttp.NewZapMiddleware(logger)
 
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://:::0", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "https://example.com/", nil)
 	req.Header.Set("Referer", "go-test")
 	req.Header.Set("User-Agent", "go-test")
 	req.Header.Set("X-Remote-User", "go-test")
@@ -65,7 +64,7 @@ func TestNewZapMiddleware(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal(buffer.Bytes(), &log))
 	assert.Equal(t, "INFO", log.Level)
-	assert.Equal(t, "https://:::0", log.Message)
+	assert.Equal(t, "https://example.com/", log.Message)
 
 	assert.Equal(t, 0, log.BodyBytesSent)
 	assert.Less(t, log.Duration*float32(time.Second), float32(time.Millisecond))
@@ -100,12 +99,12 @@ func TestNewRecoverMiddleware(t *testing.T) {
 	next := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) { panic("STONK !!!") })
 	mw := gcpehttp.NewRecoverMiddleware(logger)
 
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "https://:::0", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "https://example.com/", nil)
 	w := httptest.NewRecorder()
 	mw.ServeHTTP(w, req, next)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, `{"error":"STONK !!!"}`, w.Body.String())
+	assert.JSONEq(t, `{"error":"STONK !!!"}`, w.Body.String())
 
 	var log struct {
 		Level      string `json:"L"`

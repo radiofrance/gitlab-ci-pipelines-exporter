@@ -52,6 +52,7 @@ func StatusFromString(str string) Status {
 			return Status(i)
 		}
 	}
+
 	return StatusUnknown
 }
 

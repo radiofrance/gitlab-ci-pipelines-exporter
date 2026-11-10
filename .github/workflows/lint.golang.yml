@@ -13,15 +13,19 @@ jobs:
   golangci-lint:
     name: Golang CI lint
     runs-on: ubuntu-latest
+    env:
+      # renovate: datasource=github-releases depName=radiofrance/lint-config
+      LINT_CONFIG_VERSION: v1.2.2
     steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
         with:
-          # renovate: datasource=golang-version
-          go-version: '1.22'
+          go-version-file: go.mod
           check-latest: true
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: golangci/golangci-lint-action@aaa42aa0628b4ae2578232a66b541047968fac86 # v6.1.0
+      - name: Download golangci-lint config file
+        run: curl -sSfL -o .golangci.yml "https://raw.githubusercontent.com/radiofrance/lint-config/${LINT_CONFIG_VERSION}/.golangci.yml"
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           # renovate: datasource=github-releases depName=golangci/golangci-lint
-          version: v1.64.8
+          version: v2.15.0

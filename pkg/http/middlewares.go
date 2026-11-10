@@ -12,6 +12,7 @@ import (
 // NewZapMiddleware creates a negroni middleware to log every request.
 func NewZapMiddleware(logger *zap.Logger) negroni.HandlerFunc {
 	logger = logger.WithOptions(zap.WithCaller(false))
+
 	return func(writer http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 		writer = negroni.NewResponseWriter(writer)
 
