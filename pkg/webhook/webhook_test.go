@@ -127,7 +127,8 @@ func Test_Webhook_ServeHTTP(t *testing.T) {
 			request.Header = tcase.headers
 			response, err := server.Client().Do(request)
 			require.NoError(t, err)
-			defer response.Body.Close()
+
+			defer func() { assert.NoError(t, response.Body.Close()) }()
 
 			body, err := io.ReadAll(response.Body)
 			require.NoError(t, err)

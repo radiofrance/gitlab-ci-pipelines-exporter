@@ -22,6 +22,7 @@ func TestNewGitlabSecretTokenMiddleware(t *testing.T) {
 	assert.JSONEq(t, `{"error":"invalid Gitlab webhook secret token"}`, recorder.Body.String())
 
 	req.Header.Add("X-Gitlab-Token", "token")
+
 	recorder = httptest.NewRecorder()
 	middleware.ServeHTTP(recorder, req, next)
 	assert.Equal(t, http.StatusOK, recorder.Code)

@@ -69,31 +69,40 @@ func (wh Webhook) handleHook(writer http.ResponseWriter, request *http.Request) 
 		//			 the Recover middleware.
 		panic(err)
 	}
+
 	_ = request.Body.Close()
 
 	var payload struct {
 		ObjectKind string `json:"object_kind"`
 	}
+
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		// NOTE: we return this status code as recommended by Gitlab
 		writer.WriteHeader(http.StatusBadRequest)
 		gcpehttp.WriteError(writer, err)
+
 		return
 	}
 
 	switch payload.ObjectKind {
 	case "pipeline":
 		event := gitlab.PipelineEvent{}
-		if err := unmarshallEvent(body, &event, writer); err != nil {
+
+		err = unmarshallEvent(body, &event, writer)
+		if err != nil {
 			return
 		}
+
 		wh.handlePipelineEvent(event)
 	case "build":
 		event := gitlab.JobEvent{}
-		if err := unmarshallEvent(body, &event, writer); err != nil {
+
+		err = unmarshallEvent(body, &event, writer)
+		if err != nil {
 			return
 		}
+
 		wh.handleJobEvent(event)
 	default:
 		writer.WriteHeader(http.StatusNotImplemented)
@@ -111,6 +120,7 @@ func unmarshallEvent(data []byte, obj any, writer http.ResponseWriter) error {
 	if err != nil {
 		// NOTE: we return this status code as recommended by Gitlab
 		writer.WriteHeader(http.StatusBadRequest)
+
 		err = fmt.Errorf("failed to unmarshall json into %T", obj)
 		gcpehttp.WriteError(writer, err)
 	}

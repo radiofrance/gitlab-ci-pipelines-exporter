@@ -23,6 +23,7 @@ func (wh Webhook) handlePipelineEvent(event gitlab.PipelineEvent) {
 	if event.ObjectAttributes.QueuedDuration != 0 {
 		wh.collectors.QueuedDurationSeconds.With(labels).Set(float64(event.ObjectAttributes.QueuedDuration))
 	}
+
 	if event.ObjectAttributes.Duration != 0 {
 		wh.collectors.DurationSeconds.With(labels).Set(float64(event.ObjectAttributes.Duration))
 	}
@@ -53,6 +54,7 @@ func (wh Webhook) handleJobEvent(event gitlab.JobEvent) {
 	if event.BuildQueuedDuration != 0 {
 		wh.collectors.JobQueuedDurationSeconds.With(labels).Set(event.BuildQueuedDuration)
 	}
+
 	if event.BuildDuration != 0 {
 		wh.collectors.JobDurationSeconds.With(labels).Set(event.BuildDuration)
 	}

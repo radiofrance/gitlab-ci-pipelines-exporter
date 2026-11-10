@@ -17,6 +17,7 @@ func NewGitlabSecretTokenMiddleware(token string) negroni.HandlerFunc {
 			//			 for more details.
 			writer.WriteHeader(http.StatusInternalServerError)
 			gcpehttp.WriteError(writer, "invalid Gitlab webhook secret token")
+
 			return
 		}
 

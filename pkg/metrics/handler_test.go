@@ -41,7 +41,8 @@ func Test_Handler_ServeHTTP(t *testing.T) {
 	require.NoError(t, err)
 	response, err := server.Client().Do(request)
 	require.NoError(t, err)
-	defer response.Body.Close()
+
+	defer func() { assert.NoError(t, response.Body.Close()) }()
 
 	body, err := io.ReadAll(response.Body)
 	require.NoError(t, err)
@@ -50,6 +51,7 @@ func Test_Handler_ServeHTTP(t *testing.T) {
 # TYPE fake_total counter
 fake_total{label="value"} 1
 `
+
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	assert.Contains(t, string(body), expectedBody)
 }

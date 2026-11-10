@@ -64,7 +64,8 @@ func main() {
 
 	app.Action = action
 
-	if err := app.Run(os.Args); err != nil {
+	err := app.Run(os.Args)
+	if err != nil {
 		fmt.Println(err) //nolint:forbidigo
 		os.Exit(2)
 	}
@@ -106,6 +107,7 @@ func action(ctx *cli.Context) error {
 			ErrorOutputPaths: []string{"stderr"},
 		}.Build()
 	}
+
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
@@ -131,7 +133,9 @@ func action(ctx *cli.Context) error {
 
 	go func() {
 		logger.Info(fmt.Sprintf("webhook server listening on %s", ctx.String("web.listen-address")))
-		if err := webhookSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+
+		err := webhookSrv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
 			logger.Fatal("")
 		}
 	}()
@@ -148,7 +152,9 @@ func action(ctx *cli.Context) error {
 
 	go func() {
 		logger.Info(fmt.Sprintf("metrics server listening on %s", ctx.String("telemetry.listen-address")))
-		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+
+		err := metricsSrv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
 			logger.Fatal("")
 		}
 	}()
@@ -159,10 +165,13 @@ func action(ctx *cli.Context) error {
 	httpServerContext, forceHTTPServerShutdown := context.WithTimeout(context.Background(), 5*time.Second)
 	defer forceHTTPServerShutdown()
 
-	if err := webhookSrv.Shutdown(httpServerContext); err != nil {
+	err = webhookSrv.Shutdown(httpServerContext)
+	if err != nil {
 		return err //nolint:wrapcheck
 	}
-	if err := metricsSrv.Shutdown(httpServerContext); err != nil {
+
+	err = metricsSrv.Shutdown(httpServerContext)
+	if err != nil {
 		return err //nolint:wrapcheck
 	}
 
