@@ -275,3 +275,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,visualstudiocode,vim,emacs,linux,macos,windows,go
+
+### golangci-lint ###
+# Downloaded from radiofrance/lint-config
+.golangci.yml
+golangci-lint-report.xml
