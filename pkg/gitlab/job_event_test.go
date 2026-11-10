@@ -34,7 +34,6 @@ func TestJobEvent_ProjectName(t *testing.T) {
 	}
 
 	for name, tcase := range tcases {
-		tcase := tcase
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -65,7 +64,6 @@ func TestJobEvent_Ref(t *testing.T) {
 	}
 
 	for name, tcase := range tcases {
-		tcase := tcase
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
@@ -96,7 +94,6 @@ func TestJobEvent_RefKind(t *testing.T) {
 	}
 
 	for name, tcase := range tcases {
-		tcase := tcase
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
